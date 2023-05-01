@@ -36,8 +36,8 @@ class VM(BaseModel):
     id = PrimaryKeyField()
     pve_id = IntegerField(default=0, unique=True)
     name = CharField(32, default=None, null=True)
-    description = CharField(256, default=None, null=True)
     ip = CharField(15, unique=True)
+    ssh_port = IntegerField(default=0)
     user = ForeignKeyField(
         User,
         backref='vms',
