@@ -2,6 +2,7 @@ from getpass import getpass
 
 import pymysql
 from configobj import ConfigObj
+from Crypto.PublicKey import RSA
 
 from modules import common, password
 from modules.database import db, User, VM, Rule
@@ -53,10 +54,23 @@ def create_admin():
     )
 
 
+def create_jwt_key():
+    """创建 JWT 密钥"""
+    key = RSA.generate(2048)
+
+    common.mkdir('./keys')
+
+    with open('./keys/jwt.pem', 'wb') as f:
+        f.write(key.export_key('PEM'))
+    with open('./keys/jwt.pub', 'wb') as f:
+        f.write(key.publickey().export_key('PEM'))
+
+
 def main():
     create_db()
     create_tables()
     create_admin()
+    create_jwt_key()
 
 
 if __name__ == '__main__':

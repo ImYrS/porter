@@ -49,4 +49,19 @@ def login() -> tuple[dict, int]:
             message_human_readable='账号不存在或密码错误'
         ).create()
 
-    return session.create(user=user)
+    token = session.create(user=user)
+
+    if not token:
+        return Error().internal_error()
+
+    return {
+        'code': 200,
+        'data': {
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'is_admin': user.is_admin,
+            },
+            'access_token': token,
+        }
+    }, 200

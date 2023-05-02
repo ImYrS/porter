@@ -1,8 +1,6 @@
 from peewee import *
 from configobj import ConfigObj
 
-from modules.types import *
-
 config = ConfigObj('config.ini', encoding='utf-8')
 
 db = MySQLDatabase(
