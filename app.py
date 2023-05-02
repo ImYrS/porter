@@ -15,14 +15,14 @@ from flask import Flask, g, request
 
 from modules import common
 from modules.database import db
-# from routers.backend_v1 import bp as backend_v1_bp
+from routers.backend_v1 import bp as backend_v1_bp
 from routers.frontend_v1 import bp as frontend_v1_bp
 
 os.environ['NO_PROXY'] = '*'
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
-# app.register_blueprint(backend_v1_bp, url_prefix='/api/v1')
+app.register_blueprint(backend_v1_bp, url_prefix='/api/v1')
 app.register_blueprint(frontend_v1_bp, url_prefix='/')
 
 config = ConfigObj('./config.ini', encoding='utf-8')

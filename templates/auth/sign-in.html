@@ -21,6 +21,7 @@
     <title>
         登陆
     </title>
+    {% include 'components/js_header.html' %}
     {% include 'components/css.html' %}
 </head>
 
@@ -70,7 +71,7 @@
                                         <input type="password" class="form-control" placeholder="密码" id="password">
                                     </div>
                                     <div class="text-center">
-                                        <button type="button" class="btn btn-dark w-100 mt-4 mb-3">登陆</button>
+                                        <button type="submit" class="btn btn-dark w-100 mt-4 mb-3" onclick="login()">登陆</button>
                                     </div>
                                 </form>
                             </div>
@@ -104,6 +105,45 @@
     </section>
 </main>
 {% include 'components/js.html' %}
+<script src="https://cdn.imyrs.cn/static/web/argon2/js/plugins/forge.min.js"></script>
+<script>
+    const login = () => {
+        event.preventDefault();
+
+        let $username = $('#username'), username = $username.val(), $password = $('#password'),
+            password = $password.val(), $button = $('#mainButton');
+
+        // 检查数据
+        if (username === '' || password === '') {
+            alert('登录凭证不能为空');
+        } else {
+            $password.val('');
+            $button.attr('disabled', 'true').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+            let hashed = forge.md.sha256.create().update(password).digest().toHex();
+            $.ajax({
+                url: '/api/v1/auth/login',
+                method: 'post',
+                data: JSON.stringify({
+                    'username': username,
+                    'password': hashed,
+                }),
+                dataType: 'json',
+                contentType: 'application/json;charset=UTF-8',
+                success: (resp) => {
+                    localStorage.currentUser = JSON.stringify(resp['data']['user']);
+                    localStorage.currentSession = JSON.stringify(resp['data']['session']);
+                    localStorage.token = resp['data']['session']['access_token'];
+
+                    location.href = '/user/vms';
+                },
+                error: (resp) => {
+                    $button.removeAttr('disabled').text('登录');
+                    alert(resp['responseJSON']['message_human_readable'])
+                }
+            });
+        }
+    }
+</script>
 </body>
 
 </html>

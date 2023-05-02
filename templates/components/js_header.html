@@ -1,0 +1,55 @@
+<script>
+    // Routes
+    let path = loadPath();
+
+    if (path.startsWith('/auth')) {
+        if (sessionExists()) {
+            let redirect_url = getQueryParam('redirect_url');
+            redirect_url ? location.href = decodeURIComponent(redirect_url) : location.href = '/user/dashboard';
+        }
+    } else if (!path.startsWith('/auth') && path !== '/') {
+        if (!sessionExists()) location.href = '/auth/login?redirect_url=' + encodeURIComponent(location.pathname);
+    }
+
+    // Function - Path
+    function loadPath() {
+        let path = location.pathname;
+        if (path.split('/').slice(-1)[0] === '') {
+            path = '';
+            // 重构 path 格式为 /{path}/{path} etc...
+            location.pathname.split('/').slice(1, -1).forEach((path_split) => {
+                path += '/';
+                path += path_split;
+            });
+        }
+        return path;
+    }
+
+    function sessionExists() {
+        if (localStorage.currentUser && localStorage.currentSession && localStorage.token) {
+            let sessionExpiredAt = JSON.parse(localStorage.currentSession)['expired_at'];
+            if (sessionExpiredAt * 1000 > new Date().getTime()) return true;
+        }
+
+        localStorage.clear();
+        return false;
+    }
+
+    // Function - Get Query Param
+    function getQueryParam(variable) {
+        let query = location.search.substring(1);
+        let vars = query.split("&");
+        for (let i = 0; i < vars.length; i++) {
+            let pair = vars[i].split("=");
+            if (pair[0] === variable) {
+                return pair[1];
+            }
+        }
+        return false;
+    }
+
+    // Function - Get Path Parameter
+    function getPathParameter() {
+        return location.pathname.split('/').slice(-1)[0];
+    }
+</script>

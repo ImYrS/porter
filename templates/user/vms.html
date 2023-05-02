@@ -21,6 +21,7 @@
     <title>
         VMs
     </title>
+    {% include 'components/js_header.html' %}
     {% include 'components/css.html' %}
 </head>
 
@@ -146,37 +147,11 @@
                                     <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">IP</th>
                                     <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">SSH 端口</th>
                                     <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">规则数量</th>
+                                    <th class="text-secondary text-xs font-weight-semibold opacity-7 text-center ps-2">创建时间</th>
                                     <th class="text-center text-secondary text-xs font-weight-semibold opacity-7"></th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex ps-3">
-                                            <div>
-                                                <p class="text-dark text-sm mb-0">#104</p>
-                                                <p class="text-secondary text-xs mb-0">域名转发</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <code class="text-secondary mb-0">192.168.1.8</code>
-                                    </td>
-                                    <td>
-                                        <p class="text-sm text-secondary mb-0">10422</p>
-                                    </td>
-                                    <td>
-                                        <span class="text-lg font-weight-bold">2<span
-                                                class="text-xs"> / 10</span></span>
-                                    </td>
-                                    <td class="align-middle">
-                                        <a href="" class="text-secondary font-weight-bold text-xs"
-                                           data-bs-toggle="tooltip" data-bs-title="Edit user">
-                                            <i class="fas fa-pen"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -187,6 +162,58 @@
     {% include('components/footer.html') %}
 </main>
 {% include 'components/js.html' %}
+<script>
+    const getVMs = () => {
+        $.ajax({
+            url: '/api/v1/vms',
+            method: 'get',
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            headers: {'Authorization': 'Bearer ' + localStorage.token},
+            success: (resp) => {
+                let tb = '';
+
+                console.log(resp['data']);
+
+                resp['data'].forEach((vm) => {
+                    tb += `
+                        <tr>
+                            <td>
+                                <div class="d-flex ps-3">
+                                    <div>
+                                        <p class="text-dark text-sm mb-0">#${vm['pve_id']}</p>
+                                        <p class="text-secondary text-xs mb-0">${vm['name'] || null}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <code class="text-secondary mb-0">${vm['ip']}</code>
+                            </td>
+                            <td>
+                                <p class="text-sm text-secondary mb-0">${vm['ssh_port'] || '-'}</p>
+                            </td>
+                            <td>
+                                <span class="text-lg text-bold">${vm['rules_count']}<span class="text-xs"> / 10</span></span>
+                            </td>
+                            <td class="align-middle text-center">
+                                <span class="text-sm font-weight-bolder">${formattedTime(vm['created_at'])}</span>
+                            </td>
+                            <td class="align-middle">
+                                <a href="" class="text-secondary font-weight-bold text-xs">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </td>
+                        </tr>`
+                });
+
+                $('tbody').html(tb);
+            },
+            error: (resp) => alert(resp.responseJSON.message)
+        });
+    }
+
+    getVMs();
+</script>
 </body>
 
 </html>

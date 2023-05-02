@@ -7,25 +7,23 @@
 from typing import Optional
 import logging
 
-from flask import request, g, Blueprint
+from flask import request, g
 import jwt
 
 from modules import common
 from modules.database import User
 from modules.errors import Error, ErrorCodes
 
-bp = Blueprint('session', __name__)
-
 pri_key = open('./keys/jwt.pem', 'r').read()
 pub_key = open('./keys/jwt.pub', 'r').read()
 
 
-def create(user: User) -> Optional[str]:
+def create(user: User) -> (Optional[str], int):
     """
     创建 Access Token
 
     :param user: User 对象
-    :return: Access Token
+    :return: Access Token 和过期时间
     """
     expire_time = 60 * 60 * 24 * 1  # 1 天
 
@@ -35,8 +33,10 @@ def create(user: User) -> Optional[str]:
             'alg': 'RS256',
         }
 
+        expired_at = common.timestamp(ms=False) + expire_time
+
         payload = {
-            'exp': common.timestamp(ms=False) + expire_time,
+            'exp': expired_at,
             'iat': common.timestamp(ms=False),
             'data': {
                 'id': user.id,
@@ -50,11 +50,11 @@ def create(user: User) -> Optional[str]:
             key=pri_key,
             algorithm='RS256',
             headers=headers
-        )
+        ), expired_at
 
     except Exception as e:
         logging.error(f'Access Token 生成失败: {e}')
-        return None
+        return None, 0
 
 
 def verify(token: str) -> dict | Error:
@@ -87,7 +87,8 @@ def verify(token: str) -> dict | Error:
         logging.error(f'Access Token 校验失败: {e}')
         return {}
 
-    g.user_id = data['user_id']
-    g.user = User.get(User.id == data['user_id'])
+    g.user_id = data['data']['id']
+    g.is_admin = data['data']['is_admin']
+    g.user = User.get(User.id == g.user_id)
 
     return data

@@ -49,9 +49,9 @@ def login() -> tuple[dict, int]:
             message_human_readable='账号不存在或密码错误'
         ).create()
 
-    token = session.create(user=user)
+    token, expired_at = session.create(user=user)
 
-    if not token:
+    if not token or not expired_at:
         return Error().internal_error()
 
     return {
@@ -62,6 +62,9 @@ def login() -> tuple[dict, int]:
                 'username': user.username,
                 'is_admin': user.is_admin,
             },
-            'access_token': token,
+            'session': {
+                'access_token': token,
+                'expired_at': expired_at,
+            }
         }
     }, 200
