@@ -17,3 +17,8 @@ def login():
 @bp.route('/user/vms', strict_slashes=False)
 def user_vms():
     return render_template('user/vms.html')
+
+
+@bp.route('/user/vms/<int:vm_id>/rules', strict_slashes=False)
+def user_vm_rules(vm_id: int):
+    return render_template('user/rules.html')

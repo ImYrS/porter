@@ -103,3 +103,5 @@ class ErrorCodes:
     AccessTokenExpired = 1013
     PVEIDExists = 1021
     IPExists = 1022
+    PortInvalid = 1023
+    RuleCountLimit = 1024

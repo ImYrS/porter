@@ -32,10 +32,6 @@ class User(BaseModel):
 
 class VM(BaseModel):
     id = PrimaryKeyField()
-    pve_id = IntegerField(default=0, unique=True)
-    name = CharField(32, default=None, null=True)
-    ip = CharField(15, unique=True)
-    ssh_port = IntegerField(default=None, null=True)
     user = ForeignKeyField(
         User,
         backref='vms',
@@ -43,6 +39,12 @@ class VM(BaseModel):
         on_update='CASCADE',
         column_name='user_id',
     )
+    pve_id = IntegerField(default=0, unique=True)
+    name = CharField(32, default=None, null=True)
+    ip = CharField(15, unique=True)
+    ssh_port = IntegerField(default=None, null=True)
+    rule_count = IntegerField(default=0)
+    rule_limit = IntegerField(default=20)
     created_at = BigIntegerField(default=0)
 
     class Meta:
@@ -65,7 +67,7 @@ class Rule(BaseModel):
         on_update='CASCADE',
         column_name='vm_id',
     )
-    public_port = IntegerField(default=0)
+    public_port = IntegerField(default=0, unique=True)
     private_port = IntegerField(default=0)
     protocol = CharField(4, default='tcp')
     created_at = BigIntegerField(default=0)
