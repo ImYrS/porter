@@ -67,7 +67,7 @@ class Rule(BaseModel):
         on_update='CASCADE',
         column_name='vm_id',
     )
-    public_port = IntegerField(default=0, unique=True)
+    public_port = IntegerField(default=0)
     private_port = IntegerField(default=0)
     protocol = CharField(4, default='tcp')
     created_at = BigIntegerField(default=0)
