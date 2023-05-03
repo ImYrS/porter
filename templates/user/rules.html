@@ -128,8 +128,8 @@
                     <div class="card-header border-bottom pb-0">
                         <div class="d-sm-flex align-items-center mb-3">
                             <div>
-                                <h6 class="font-weight-semibold text-lg mb-0">#104</h6>
-                                <p class="text-sm mb-sm-0">域名转发</p>
+                                <h6 class="font-weight-semibold text-lg mb-0" id="pve-id"></h6>
+                                <p class="text-sm mb-sm-0" id="vm-name"></p>
                             </div>
                             <div class="ms-auto d-flex">
                                 <button type="button" class="btn btn-sm btn-primary mb-0 me-2"
@@ -212,6 +212,9 @@
             contentType: 'application/json;charset=UTF-8',
             headers: {'Authorization': 'Bearer ' + localStorage.token},
             success: (resp) => {
+                $('#pve-id').text('#' + resp['data']['pve_id']);
+                $('#vm-name').text(resp['data']['name']);
+
                 let tb = '';
                 let pubIp = null2dash(resp['data']['public_ip'], '');
 
