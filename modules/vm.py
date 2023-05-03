@@ -12,7 +12,7 @@ from flask import g, blueprints, request
 from werkzeug.exceptions import BadRequest
 from configobj import ConfigObj
 
-from modules import common
+from modules import common, iptables
 from modules.database import VM, Rule
 from modules.decorator import auth_required
 from modules.errors import Error, ErrorCodes
@@ -201,6 +201,8 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
         vm.rule_count += 1
         vm.save()
 
+        iptables.add(rule)
+
     except VM.DoesNotExist:
         return Error().not_found()
 
@@ -227,6 +229,11 @@ def delete_rule(vm_id: int, rule_id: int) -> tuple[dict, int]:
     except peewee.PeeweeException as e:
         logging.error(f'删除端口转发规则失败: {e}')
         return Error().db_error()
+
+    iptables.delete(rule)
+
+    if rule.private_port == 22:
+        vm.ssh_port = None
 
     rule.delete_instance()
     vm.rule_count -= 1
