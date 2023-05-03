@@ -246,7 +246,7 @@
 
                 $('tbody').html(tb);
             },
-            error: (resp) => alert(resp.responseJSON.message_human_readable)
+            error: (resp) => XHRError(resp)
         });
     }
 
@@ -283,7 +283,7 @@
                 $('tbody').html('');
                 getRules();
             },
-            error: (resp) => alert(resp.responseJSON.message_human_readable)
+            error: (resp) => XHRError(resp)
         });
     }
 
@@ -299,7 +299,7 @@
                 $('tbody').html('');
                 getRules();
             },
-            error: (resp) => alert(resp.responseJSON.message_human_readable)
+            error: (resp) => XHRError(resp)
         });
     }
 

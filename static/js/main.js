@@ -44,3 +44,14 @@ function null2dash(variable, replace = '-') {
         return variable;
     }
 }
+
+function XHRError(e) {
+    if (e.responseJSON) {
+        if (e.status === 401) {
+            localStorage.clear();
+            location.href = '/';
+        }
+
+        alert(e.responseJSON.message_human_readable);
+    } else alert('连接后端失败');
+}
