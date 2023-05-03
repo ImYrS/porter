@@ -148,7 +148,7 @@
                                 <tr>
                                     <th class="text-secondary text-xs font-weight-semibold opacity-7">VM</th>
                                     <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">IP</th>
-                                    <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">SSH 端口</th>
+                                    <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">SSH 地址</th>
                                     <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">规则数量</th>
                                     <th class="text-secondary text-xs font-weight-semibold opacity-7 text-center ps-2">
                                         创建时间
@@ -213,6 +213,7 @@
                 let tb = '';
 
                 resp['data'].forEach((vm) => {
+                    let ssh = vm['ssh_port'] ? `<span class="text-muted">${vm['public_ip']}:</span>${vm['ssh_port']}` : '-';
                     tb += `
                         <tr>
                             <td>
@@ -223,12 +224,8 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>
-                                <code class="text-secondary mb-0">${vm['private_ip']}</code>
-                            </td>
-                            <td>
-                                <p class="text-sm text-secondary mb-0">${null2dash(vm['ssh_port'])}</p>
-                            </td>
+                            <td><code class="text-secondary mb-0 text-bold">${vm['private_ip']}</code></td>
+                            <td><code class="text-dark mb-0 text-bold">${ssh}</code></td>
                             <td>
                                 <span class="text-lg text-bold">${vm['rule_count']}<span class="text-xs"> / ${vm['rule_limit']}</span></span>
                             </td>

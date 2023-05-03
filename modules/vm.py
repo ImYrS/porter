@@ -195,6 +195,9 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
             created_at=common.now(),
         )
 
+        if private_port == 22:
+            vm.ssh_port = public_port
+
         vm.rule_count += 1
         vm.save()
 
