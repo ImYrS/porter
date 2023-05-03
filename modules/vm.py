@@ -57,11 +57,11 @@ def rule_to_dict(rule: Rule) -> dict:
     }
 
 
-def port_is_ok(port: int) -> bool:
+def port_is_ok(port: int, is_admin: Optional[bool] = False) -> bool:
     """检查端口是否合法"""
     try:
         return (
-                10000 < port < 65536
+                ((10000 < port < 65536) if not is_admin else True)
                 and
                 not Rule.select().where(Rule.public_port == port).exists()
         )
@@ -168,7 +168,7 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
         return Error().parameters_invalid()
 
     try:
-        if not port_is_ok(public_port):
+        if not port_is_ok(public_port, is_admin=g.user.is_admin):
             return Error(
                 code=ErrorCodes.PortInvalid,
                 http_code=409,
@@ -279,7 +279,7 @@ def check_port() -> tuple[dict, int]:
     except (KeyError, TypeError, ValueError, BadRequest):
         return Error().parameters_invalid()
 
-    if not port_is_ok(port):
+    if not port_is_ok(port, is_admin=g.user.is_admin):
         return Error(
             code=ErrorCodes.PortInvalid,
             http_code=409,
