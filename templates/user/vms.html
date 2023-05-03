@@ -132,8 +132,12 @@
                                 <p class="text-sm mb-sm-0">你创建的虚拟机</p>
                             </div>
                             <div class="ms-auto d-flex">
-                                <button type="button" class="btn btn-sm btn-primary mb-0 me-2">
-                                    添加 VM
+                                <a class="btn btn-sm btn-info mb-0 me-2">
+                                    IP 可用性查询
+                                </a>
+                                <button type="button" class="btn btn-sm btn-primary mb-0 me-2"
+                                        onclick="showCreateVMModal();">
+                                    绑定 VM
                                 </button>
                             </div>
                         </div>
@@ -147,7 +151,9 @@
                                     <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">IP</th>
                                     <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">SSH 端口</th>
                                     <th class="text-secondary text-xs font-weight-semibold opacity-7 ps-2">规则数量</th>
-                                    <th class="text-secondary text-xs font-weight-semibold opacity-7 text-center ps-2">创建时间</th>
+                                    <th class="text-secondary text-xs font-weight-semibold opacity-7 text-center ps-2">
+                                        创建时间
+                                    </th>
                                     <th class="text-center text-secondary text-xs font-weight-semibold opacity-7"></th>
                                 </tr>
                                 </thead>
@@ -161,6 +167,40 @@
     </div>
     {% include('components/footer.html') %}
 </main>
+<div class="modal fade" id="create-vm" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <div class="card card-plain">
+                    <div class="card-header pb-0 text-left">
+                        <h3 class="font-weight-bolder text-primary text-gradient">绑定已创建的 VM</h3>
+                        <span class="text-sm">创建 VM 时先查询内网 IP 可用性, 再绑定 IP.</span>
+                    </div>
+                    <div class="card-body pb-3">
+                        <label for="pve-id">PVE VM ID</label>
+                        <div class="input-group mb-3">
+                            <input id="pve-id" type="number" class="form-control" placeholder="PVE 内的虚拟机 ID">
+                        </div>
+                        <label for="ip">内网 IP</label>
+                        <div class="input-group mb-3">
+                            <input id="ip" type="text" class="form-control" placeholder="192.168.1.X">
+                        </div>
+                        <label for="name">名称</label>
+                        <div class="input-group mb-3">
+                            <input id="name" type="text" class="form-control" placeholder="用于分辨虚拟机, 可不填">
+                        </div>
+                        <div class="text-center">
+                            <button class="btn btn-primary btn-rounded w-100 mt-4"
+                                    id="create" onclick="createVM();">
+                                绑定
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% include 'components/js.html' %}
 <script>
     const getVMs = () => {
@@ -182,7 +222,7 @@
                                 <div class="d-flex ps-3">
                                     <div>
                                         <p class="text-dark text-sm mb-0">#${vm['pve_id']}</p>
-                                        <p class="text-secondary text-xs mb-0">${vm['name'] || null}</p>
+                                        <p class="text-secondary text-xs mb-0">${null2dash(vm['name'], '')}</p>
                                     </div>
                                 </div>
                             </td>
@@ -190,7 +230,7 @@
                                 <code class="text-secondary mb-0">${vm['ip']}</code>
                             </td>
                             <td>
-                                <p class="text-sm text-secondary mb-0">${vm['ssh_port'] || '-'}</p>
+                                <p class="text-sm text-secondary mb-0">${null2dash(vm['ssh_port'])}</p>
                             </td>
                             <td>
                                 <span class="text-lg text-bold">${vm['rules_count']}<span class="text-xs"> / 10</span></span>
@@ -208,7 +248,45 @@
 
                 $('tbody').html(tb);
             },
-            error: (resp) => alert(resp.responseJSON.message)
+            error: (resp) => alert(resp.responseJSON.message_human_readable)
+        });
+    }
+
+    const showCreateVMModal = () => {
+        $('#pve-id').val('')
+        $('#ip').val('')
+        $('#name').val('')
+        $('#create-vm').modal('show');
+    }
+
+    const createVM = () => {
+        const pveId = $('#pve-id').val();
+        const ip = $('#ip').val();
+        const name = $('#name').val();
+
+        if (!pveId || !ip) {
+            alert('请填写完整信息');
+            return;
+        }
+
+        $.ajax({
+            url: '/api/v1/vms',
+            method: 'post',
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            headers: {'Authorization': 'Bearer ' + localStorage.token},
+            data: JSON.stringify({
+                pve_id: pveId,
+                ip: ip,
+                name: name
+            }),
+            success: (resp) => {
+                alert('添加成功');
+                $('#create-vm').modal('hide');
+                $('tbody').html('');
+                getVMs();
+            },
+            error: (resp) => alert(resp.responseJSON.message_human_readable)
         });
     }
 

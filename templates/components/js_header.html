@@ -5,7 +5,7 @@
     if (path.startsWith('/auth')) {
         if (sessionExists()) {
             let redirect_url = getQueryParam('redirect_url');
-            redirect_url ? location.href = decodeURIComponent(redirect_url) : location.href = '/user/dashboard';
+            redirect_url ? location.href = decodeURIComponent(redirect_url) : location.href = '/user/vms';
         }
     } else if (!path.startsWith('/auth') && path !== '/') {
         if (!sessionExists()) location.href = '/auth/login?redirect_url=' + encodeURIComponent(location.pathname);
