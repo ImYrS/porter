@@ -57,7 +57,7 @@ def create(user: User) -> (Optional[str], int):
         return None, 0
 
 
-def verify(token: str) -> dict | Error:
+def verify(token: str) -> dict or Error:
     """
     校验 Access Token
 
