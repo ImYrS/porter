@@ -101,6 +101,7 @@ class ErrorCodes:
     CredentialsInvalid = 1011
     AccessTokenInvalid = 1012
     AccessTokenExpired = 1013
+    UserExists = 1014
     PVEIDExists = 1021
     IPExists = 1022
     PortInvalid = 1023

@@ -57,11 +57,12 @@ def create(user: User) -> (Optional[str], int):
         return None, 0
 
 
-def verify(token: str) -> dict or Error:
+def verify(token: str, is_admin: Optional[bool] = False) -> dict or Error:
     """
     校验 Access Token
 
     :param token: Access Token
+    :param is_admin: 是否需要管理员权限
     :return: 校验结果
     """
     token = str(token or request.headers.get('Authorization'))
@@ -86,6 +87,14 @@ def verify(token: str) -> dict or Error:
     except Exception as e:
         logging.error(f'Access Token 校验失败: {e}')
         return {}
+
+    if is_admin and not data['data']['is_admin']:
+        return Error(
+            code=403,
+            http_code=403,
+            message='Permission denied',
+            message_human_readable='权限不足',
+        )
 
     g.user_id = data['data']['id']
     g.is_admin = data['data']['is_admin']

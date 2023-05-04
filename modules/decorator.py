@@ -5,6 +5,7 @@
 """
 
 from functools import wraps
+from typing import Optional
 
 from flask import request
 
@@ -12,7 +13,7 @@ from modules import session
 from modules.errors import Error
 
 
-def auth_required() -> callable:
+def auth_required(is_admin: Optional[bool] = False) -> callable:
     """
     Access Token 校验装饰器
 
@@ -26,7 +27,7 @@ def auth_required() -> callable:
             if not token:
                 return Error().access_token_invalid()
 
-            data = session.verify(token)
+            data = session.verify(token, is_admin)
 
             if isinstance(data, Error):
                 return data.create()

@@ -97,3 +97,49 @@ def reset_password() -> tuple[dict, int]:
         return Error().db_error()
 
     return {'code': 200}, 200
+
+
+@bp.route('/create-user', methods=['POST'])
+@auth_required(is_admin=True)
+def create_user() -> tuple[dict, int]:
+    """创建用户"""
+    try:
+        username = request.json['username'].strip()
+        pwd = request.json.get('password', None)
+        is_admin = request.json.get('is_admin', False)
+    except (TypeError, KeyError, ValueError, BadRequest):
+        return Error().parameters_invalid()
+
+    try:
+        if User.select().where(User.username == username).exists():
+            return Error(
+                code=ErrorCodes.UserExists,
+                http_code=409,
+                message='Username exists',
+                message_human_readable='用户名已存在',
+            ).create()
+
+        raw_pwd = None if pwd else common.rand_char(16)
+
+        if raw_pwd:
+            pwd = common.hash256(raw_pwd)
+
+        user = User.create(
+            username=username,
+            password=password.crypt(pwd),
+            is_admin=is_admin,
+            created_at=common.now(),
+        )
+
+    except peewee.PeeweeException as e:
+        logging.error(f'创建用户失败: {e}')
+        return Error().db_error()
+
+    return {
+        'code': 200,
+        'data': {
+            'id': user.id,
+            'username': user.username,
+            'password': raw_pwd,
+        }
+    }, 200
