@@ -1,0 +1,178 @@
+<!--
+=========================================================
+* Corporate UI - v1.0.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/corporate-ui
+* Copyright 2022 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        Account Setting
+    </title>
+    {% include 'components/js_header.html' %}
+    {% include 'components/css.html' %}
+</head>
+
+<body class="g-sidenav-show  bg-gray-100">
+{% include 'components/sidebar.html' %}
+<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    <nav class="navbar navbar-main navbar-expand-lg mx-5 px-0 shadow-none rounded" id="navbarBlur" navbar-scroll="true">
+        <div class="container-fluid py-1 px-2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent mb-1 pb-0 pt-1 px-0 me-sm-6 me-5">
+                    <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="/">Dashboard</a></li>
+                    <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Account</li>
+                </ol>
+                <h6 class="font-weight-bold mb-0">Account Setting</h6>
+            </nav>
+            <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
+                <div class="ms-md-auto pe-md-3 d-flex align-items-center">
+                </div>
+                <ul class="navbar-nav  justify-content-end">
+                    <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+                        <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+                            <div class="sidenav-toggler-inner">
+                                <i class="sidenav-toggler-line"></i>
+                                <i class="sidenav-toggler-line"></i>
+                                <i class="sidenav-toggler-line"></i>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- End Navbar -->
+    <div class="container-fluid py-4 px-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="row">
+                    <div class="col-lg-6 mx-auto">
+                        <div class="card border shadow-xs mb-4">
+                            <div class="card-header border-bottom pb-0">
+                                <div class="d-sm-flex align-items-center mb-3">
+                                    <div>
+                                        <h6 class="font-weight-semibold text-lg mb-0">重置密码</h6>
+                                        <p class="text-sm mb-sm-0">使用凭证以重置密码</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <form role="form">
+                                    <label for="old-password">旧密码</label>
+                                    <div class="mb-3">
+                                        <input type="password" class="form-control" placeholder="当前密码"
+                                               id="old-password">
+                                    </div>
+                                    <label for="new-password">新密码</label>
+                                    <div class="mb-3">
+                                        <input type="password" class="form-control" placeholder="新密码"
+                                               id="new-password">
+                                    </div>
+                                    <label for="new-password-check">重复密码</label>
+                                    <div class="mb-3">
+                                        <input type="password" class="form-control" placeholder="重复密码"
+                                               id="new-password-check">
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-dark w-100 mt-4 mb-3"
+                                                onclick="resetPassword()">
+                                            确定
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 mx-auto">
+                        <div class="card border shadow-xs mb-4">
+                            <div class="card-header border-bottom pb-0">
+                                <div class="d-sm-flex align-items-center mb-3">
+                                    <div>
+                                        <h6 class="font-weight-semibold text-lg mb-0">创建账号</h6>
+                                        <p class="text-sm mb-sm-0">管理员可在此添加账号</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <form role="form">
+                                    <label for="username">用户名</label>
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" placeholder="创建的账号用户名"
+                                               id="username">
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-dark w-100 mt-4 mb-3"
+                                                onclick="resetPassword()">
+                                            生成
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include('components/footer.html') %}
+</main>
+{% include 'components/js.html' %}
+<script src="https://cdn.imyrs.cn/static/web/argon2/js/plugins/forge.min.js"></script>
+<script>
+    const resetPassword = () => {
+        event.preventDefault();
+
+        let oldPassword = $('#old-password').val();
+        let newPassword = $('#new-password').val();
+        let newPasswordCheck = $('#new-password-check').val();
+
+        // 检查数据
+        if (oldPassword === '' || newPassword === '' || newPasswordCheck === '') {
+            alert('请检查填写的数据是否完整');
+            return;
+        }
+
+        if (newPassword !== newPasswordCheck) {
+            alert('两次输入的密码不一致');
+            return;
+        }
+
+        oldPassword = forge.md.sha256.create().update(oldPassword).digest().toHex();
+        newPassword = forge.md.sha256.create().update(newPassword).digest().toHex();
+
+        $.ajax({
+            url: '/api/v1/auth/reset-password',
+            method: 'post',
+            data: JSON.stringify({
+                'old_password': oldPassword,
+                'new_password': newPassword
+            }),
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            headers: {'Authorization': 'Bearer ' + localStorage.token},
+            success: (resp) => {
+                localStorage.clear();
+                alert('密码修改成功，请重新登录');
+                location.href = '/';
+            },
+            error: (resp) => XHRError(resp)
+        });
+    }
+</script>
+</body>
+
+</html>
