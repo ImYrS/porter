@@ -55,7 +55,7 @@ init_logger(debug_mode)
 
 @app.before_request
 def before_request():
-    if request.path.startswith('api/'):
+    if request.path.startswith('/api/'):
         g.db = db
         try:
             g.db.connect()
@@ -66,7 +66,7 @@ def before_request():
 @app.after_request
 def after_request(response):
     """请求后执行"""
-    if request.path.startswith('api/'):
+    if request.path.startswith('/api/'):
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = '*'
@@ -80,7 +80,7 @@ def after_request(response):
 @app.teardown_request
 def teardown_request(exception):
     """请求结束后执行"""
-    if request.path.startswith('api/'):
+    if request.path.startswith('/api/'):
         if not g.db.is_closed():
             g.db.close()
 
