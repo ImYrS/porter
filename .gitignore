@@ -2,6 +2,7 @@ config.ini
 .idea
 keys/
 logs/
+iptables.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
