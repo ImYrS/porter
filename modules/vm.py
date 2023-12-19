@@ -172,6 +172,31 @@ def get_vm(vm_id: int) -> tuple[dict, int]:
     }, 200
 
 
+@bp.route('/<int:vm_id>', methods=['DELETE'])
+@auth_required()
+def delete_vm(vm_id: int) -> tuple[dict, int]:
+    """删除虚拟机"""
+    try:
+        vm = VM.get(
+            VM.id == vm_id,
+            (VM.user == g.user) if not g.user.is_admin else True
+        )
+    except peewee.DoesNotExist:
+        return Error().not_found()
+
+    except peewee.PeeweeException as e:
+        logging.error(f'删除 VM 失败: {e}')
+        return Error().db_error()
+
+    for rule in vm.rules:
+        iptables.delete(rule)
+        rule.delete_instance()
+
+    vm.delete_instance()
+
+    return {'code': 200}, 210
+
+
 @bp.route('/<int:vm_id>/rules', methods=['POST'])
 @auth_required()
 def create_rule(vm_id: int) -> tuple[dict, int]:

@@ -177,6 +177,10 @@
                                 <a href="/user/vms/${vm['id']}/rules" class="text-secondary font-weight-bold text-xs">
                                     <i class="fas fa-pen"></i>
                                 </a>
+                                <a href="javascript:tryToDeleteVM('${vm['id']}')" class="text-secondary font-weight-bold text-xs ms-3"
+                                    id="vm-${vm['id']}-delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
                             </td>
                         </tr>`
                 });
@@ -218,6 +222,36 @@
             success: (resp) => {
                 alert('添加成功');
                 $('#create-vm').modal('hide');
+                $('tbody').html('');
+                getVMs();
+            },
+            error: (resp) => XHRError(resp)
+        });
+    }
+
+    const tryToDeleteVM = (vmId) => {
+        $(`#vm-${vmId}-delete`)
+            .attr('onclick', `deleteVM('${vmId}')`)
+            .removeClass('text-secondary')
+            .addClass('text-danger');
+
+        setTimeout(() => {
+            $(`#vm-${vmId}-delete`)
+                .attr('onclick', `tryToDeleteVM('${vmId}')`)
+                .removeClass('text-danger')
+                .addClass('text-secondary');
+        }, 3000);
+    }
+
+    const deleteVM = (vmId) => {
+        $.ajax({
+            url: `/api/v1/vms/${vmId}`,
+            method: 'delete',
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            headers: {'Authorization': 'Bearer ' + localStorage.token},
+            success: (resp) => {
+                alert('删除成功');
                 $('tbody').html('');
                 getVMs();
             },
