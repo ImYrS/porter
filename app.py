@@ -29,7 +29,7 @@ config = ConfigObj('./config.ini', encoding='utf-8')
 debug_mode = config['dev'].as_bool('debug')
 
 
-def init_logger(debug: Optional[bool] = False) -> NoReturn:
+def init_logger(debug: Optional[bool] = False):
     """初始化日志系统"""
     log = logging.getLogger()
     log.setLevel(logging.INFO)
