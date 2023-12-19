@@ -55,3 +55,8 @@ function XHRError(e) {
         alert(e.responseJSON.message_human_readable);
     } else alert('连接后端失败');
 }
+
+function logOut() {
+    localStorage.clear();
+    location.href = '/';
+}
