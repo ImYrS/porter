@@ -148,7 +148,12 @@
             contentType: 'application/json;charset=UTF-8',
             headers: {'Authorization': 'Bearer ' + localStorage.token},
             success: (resp) => {
-                $('#pve-id').text('#' + resp['data']['pve_id']);
+                let fromUser = '';
+                if (resp['data']['user']['id'] !== resp['meta']['user']['id']) {
+                    fromUser = `<span class="badge badge-info ms-1">${resp['data']['user']['username']}</span>`;
+                }
+
+                $('#pve-id').html(`#${resp['data']['pve_id']} ${fromUser}`);
                 $('#vm-name').text(resp['data']['name']);
 
                 let tb = '';

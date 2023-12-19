@@ -7,7 +7,8 @@
 
 import logging
 import os
-from typing import NoReturn, Optional
+from typing import Optional
+from json import dumps
 
 from configobj import ConfigObj
 import peewee
@@ -74,6 +75,20 @@ def after_request(response):
         response.headers['Access-Control-Max-Age'] = '86400'
 
         g.db.close()
+
+        if response.is_json:
+            data = response.json
+            meta = data.get('meta', {})
+
+            if g.user:
+                meta['user'] = {
+                    'id': g.user.id,
+                    'username': g.user.username,
+                    'is_admin': g.user.is_admin,
+                }
+
+            data['meta'] = meta
+            response.set_data(dumps(data, ensure_ascii=False))
     return response
 
 

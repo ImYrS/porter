@@ -150,12 +150,17 @@
 
                 resp['data'].forEach((vm) => {
                     let ssh = vm['ssh_port'] ? `<span class="text-muted">${vm['public_ip']}:</span>${vm['ssh_port']}` : '-';
+                    let fromUser = '';
+                    if (vm['user']['id'] !== resp['meta']['user']['id']) fromUser = `${vm['user']['username']}`;
                     tb += `
                         <tr>
                             <td>
                                 <div class="d-flex ps-3">
                                     <div>
-                                        <p class="text-dark text-sm mb-0">#${vm['pve_id']}</p>
+                                        <div>
+                                            <span class="text-dark text-sm mb-0">#${vm['pve_id']}</span>
+                                            <span class="badge badge-sm badge-info ms-1">${fromUser}</span>
+                                        </div>
                                         <p class="text-secondary text-xs mb-0">${null2dash(vm['name'], '')}</p>
                                     </div>
                                 </div>

@@ -13,7 +13,7 @@ from werkzeug.exceptions import BadRequest
 from configobj import ConfigObj
 
 from modules import common, iptables
-from modules.database import VM, Rule
+from modules.database import VM, Rule, User
 from modules.decorator import auth_required
 from modules.errors import Error, ErrorCodes
 
@@ -35,6 +35,11 @@ def vm_to_dict(vm: VM, add_rules: Optional[bool] = False) -> dict:
         'rule_count': vm.rule_count,
         'rule_limit': vm.rule_limit,
         'rules': None,
+        'user': {
+            'id': vm.user.id,
+            'username': vm.user.username,
+            'is_admin': vm.user.is_admin,
+        }
     }
 
     if add_rules:
@@ -82,7 +87,11 @@ def port_is_ok(
 def get_vms() -> tuple[dict, int]:
     """获取虚拟机列表"""
     try:
-        vms = VM.select().where(VM.user == g.user)
+        vms = (
+            VM.select().join(User).order_by(VM.created_at.desc())
+            if g.user.is_admin
+            else VM.select().where(VM.user == g.user).join(User).order_by(VM.created_at.desc())
+        )
     except peewee.PeeweeException as e:
         logging.error(f'获取 VM 列表失败: {e}')
         return Error().db_error()
@@ -146,8 +155,11 @@ def create_vm() -> tuple[dict, int]:
 def get_vm(vm_id: int) -> tuple[dict, int]:
     """获取虚拟机信息"""
     try:
-        vm = VM.get(VM.id == vm_id, VM.user == g.user)
-    except VM.DoesNotExist:
+        vm = VM.get(
+            VM.id == vm_id,
+            (VM.user == g.user) if not g.user.is_admin else True
+        )
+    except peewee.DoesNotExist:
         return Error().not_found()
 
     except peewee.PeeweeException as e:
@@ -183,7 +195,10 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
                 message_human_readable='端口为保留端口或已被占用',
             ).create()
 
-        vm = VM.get(VM.id == vm_id, VM.user == g.user)
+        vm = VM.get(
+            VM.id == vm_id,
+            (VM.user == g.user) if not g.user.is_admin else True
+        )
 
         if vm.rule_count >= vm.rule_limit:
             return Error(
@@ -210,7 +225,7 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
 
         iptables.add(rule)
 
-    except VM.DoesNotExist:
+    except peewee.DoesNotExist:
         return Error().not_found()
 
     except peewee.PeeweeException as e:
@@ -228,9 +243,12 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
 def delete_rule(vm_id: int, rule_id: int) -> tuple[dict, int]:
     """删除端口转发规则"""
     try:
-        vm = VM.get(VM.id == vm_id, VM.user == g.user)
+        vm = VM.get(
+            VM.id == vm_id,
+            (VM.user == g.user) if not g.user.is_admin else True
+        )
         rule = Rule.get(Rule.id == rule_id, Rule.vm == vm)
-    except (VM.DoesNotExist, Rule.DoesNotExist):
+    except peewee.DoesNotExist:
         return Error().not_found()
 
     except peewee.PeeweeException as e:
