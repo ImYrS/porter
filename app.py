@@ -80,12 +80,14 @@ def after_request(response):
             data = response.json
             meta = data.get('meta', {})
 
-            if g.user:
+            try:
                 meta['user'] = {
                     'id': g.user.id,
                     'username': g.user.username,
                     'is_admin': g.user.is_admin,
                 }
+            except AttributeError:
+                pass
 
             data['meta'] = meta
             response.set_data(dumps(data, ensure_ascii=False))
