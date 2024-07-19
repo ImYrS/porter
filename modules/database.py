@@ -3,14 +3,18 @@ from configobj import ConfigObj
 
 config = ConfigObj('config.ini', encoding='utf-8')
 
-db = MySQLDatabase(
-    config['db']['database'],
-    host=config['db']['host'],
-    user=config['db']['user'],
-    passwd=config['db']['password'],
-    port=config['db'].as_int('port'),
-    autorollback=True,
-    charset='utf8mb4',
+db = (
+    MySQLDatabase(
+        config['db']['database'],
+        host=config['db']['host'],
+        user=config['db']['user'],
+        passwd=config['db']['password'],
+        port=config['db'].as_int('port'),
+        autorollback=True,
+        charset='utf8mb4',
+    )
+    if config['db']["type"] == "mysql"
+    else SqliteDatabase(f"{config['db']['database']}.db")
 )
 
 
