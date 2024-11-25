@@ -54,8 +54,8 @@ def delete(rule: Rule) -> bool:
         f'--to-destination {rule.vm.ip}:{rule.private_port}'
     )
 
-    logging.info(f'删除规则: {shell}')
-    os.system(shell)
+    while os.system(shell) == 0:
+        logging.info(f'删除规则: {shell}')
 
     shell = shell.replace('-D', '-A')
 
