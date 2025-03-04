@@ -56,7 +56,7 @@ def login() -> tuple[dict, int]:
         return Error().internal_error()
 
     return {
-        "code": 200,
+        "code": 0,
         "data": {
             "user": {
                 "id": user.id,
@@ -96,7 +96,7 @@ def reset_password() -> tuple[dict, int]:
         logging.error(f"重置密码失败: {e}")
         return Error().db_error()
 
-    return {"code": 200}, 200
+    return {"code": 0}, 200
 
 
 @bp.route("/create-user", methods=["POST"])
@@ -136,7 +136,7 @@ def create_user() -> tuple[dict, int]:
         return Error().db_error()
 
     return {
-        "code": 200,
+        "code": 0,
         "data": {
             "id": user.id,
             "username": user.username,

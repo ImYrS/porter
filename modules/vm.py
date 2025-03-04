@@ -89,7 +89,7 @@ def get_vms() -> tuple[dict, int]:
         logging.error(f"获取 VM 列表失败: {e}")
         return Error().db_error()
 
-    return {"code": 200, "data": [vm_to_dict(vm) for vm in vms]}, 200
+    return {"code": 0, "data": [vm_to_dict(vm) for vm in vms]}, 200
 
 
 @bp.route("", methods=["POST"])
@@ -131,7 +131,7 @@ def create_vm() -> tuple[dict, int]:
         logging.error(f"创建 VM 失败: {e}")
         return Error().db_error()
 
-    return {"code": 200, "data": vm_to_dict(vm)}, 200
+    return {"code": 0, "data": vm_to_dict(vm)}, 200
 
 
 @bp.route("/<int:vm_id>", methods=["GET"])
@@ -149,7 +149,7 @@ def get_vm(vm_id: int) -> tuple[dict, int]:
         logging.error(f"获取 VM 信息失败: {e}")
         return Error().db_error()
 
-    return {"code": 200, "data": vm_to_dict(vm, add_rules=True)}, 200
+    return {"code": 0, "data": vm_to_dict(vm, add_rules=True)}, 200
 
 
 @bp.route("/<int:vm_id>", methods=["DELETE"])
@@ -173,7 +173,7 @@ def delete_vm(vm_id: int) -> tuple[dict, int]:
 
     vm.delete_instance()
 
-    return {"code": 200}, 210
+    return {"code": 0}, 210
 
 
 @bp.route("/<int:vm_id>/rules", methods=["POST"])
@@ -235,7 +235,7 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
         logging.error(f"创建端口转发规则失败: {e}")
         return Error().db_error()
 
-    return {"code": 200, "data": rule_to_dict(rule)}, 200
+    return {"code": 0, "data": rule_to_dict(rule)}, 200
 
 
 @bp.route("/<int:vm_id>/rules/<int:rule_id>", methods=["DELETE"])
@@ -263,7 +263,7 @@ def delete_rule(vm_id: int, rule_id: int) -> tuple[dict, int]:
     vm.rule_count -= 1
     vm.save()
 
-    return {"code": 200}, 210
+    return {"code": 0}, 210
 
 
 @bp.route("/check_ip", methods=["POST"])
@@ -288,7 +288,7 @@ def check_ip() -> tuple[dict, int]:
         return Error().db_error()
 
     return {
-        "code": 200,
+        "code": 0,
         "data": {
             "ip": ip,
         },
@@ -313,7 +313,7 @@ def check_port() -> tuple[dict, int]:
         ).create()
 
     return {
-        "code": 200,
+        "code": 0,
         "data": {
             "port": port,
         },
