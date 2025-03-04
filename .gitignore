@@ -3,6 +3,7 @@ config.ini
 keys/
 logs/
 iptables.sh
+*.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
