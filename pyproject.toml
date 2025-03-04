@@ -1,0 +1,22 @@
+[project]
+name = "porter"
+version = "0.1.0"
+description = ""
+authors = [
+    { name = "imyrs", email = "i@imyrs.com" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "argon2-cffi (>=23.1.0)",
+    "configobj (>=5.0.9,<6.0.0)",
+    "cryptography (>=41.0.7)",
+    "flask (>=3.1.0,<4.0.0)",
+    "peewee (>=3.17.9,<4.0.0)",
+    "pycryptodome (>=3.21.0,<4.0.0)",
+    "pyjwt (>=2.8.0)",
+    "pymysql (>=1.1.0)"
+]
+
+[tool.poetry]
+package-mode = false
