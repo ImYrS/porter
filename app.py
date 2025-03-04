@@ -13,16 +13,27 @@ from json import dumps
 from configobj import ConfigObj
 import peewee
 from flask import Flask, g, request
+from flask.json.provider import DefaultJSONProvider
 
 from modules import common
 from modules.database import db
+from modules.formatter import add_camel_case_fields
 from routers.backend_v1 import bp as backend_v1_bp
 from routers.frontend_v1 import bp as frontend_v1_bp
+
+
+class BetterJSONProvider(DefaultJSONProvider):
+    compact = True
+    ensure_ascii = False
+    mimetype = "application/json; charset=utf-8"
+
 
 os.environ["NO_PROXY"] = "*"
 
 app = Flask(__name__)
-app.config["JSON_AS_ASCII"] = False
+
+app.json = BetterJSONProvider(app)
+
 app.register_blueprint(backend_v1_bp, url_prefix="/api/v1")
 app.register_blueprint(frontend_v1_bp, url_prefix="/")
 
@@ -92,6 +103,10 @@ def after_request(response):
                 }
             except AttributeError:
                 pass
+
+            # 处理 data 字段中的数据，添加小驼峰命名
+            if "data" in data:
+                data["data"] = add_camel_case_fields(data["data"])
 
             data["meta"] = meta
             response.set_data(dumps(data, ensure_ascii=False))
