@@ -1,8 +1,8 @@
 """
-    @Author: ImYrS Yang
-    @Date: 2023/2/12
-    @Copyright: ImYrS Yang
-    @Description: 
+@Author: ImYrS Yang
+@Date: 2023/2/12
+@Copyright: ImYrS Yang
+@Description:
 """
 
 import hashlib
@@ -15,8 +15,8 @@ from typing import NoReturn, Optional
 
 
 def formatted_time(
-        time_stamp: Optional[int] = int(time.time()),
-        secure_format: Optional[bool] = False,
+    time_stamp: Optional[int] = int(time.time()),
+    secure_format: Optional[bool] = False,
 ) -> str:
     """
     时间戳转换为格式化时间
@@ -48,7 +48,12 @@ def get_today_timestamp() -> int:
 
     :return: 时间戳, 单位毫秒
     """
-    return int(time.mktime(time.strptime(time.strftime("%Y-%m-%d", time.localtime()), "%Y-%m-%d")) * 1000)
+    return int(
+        time.mktime(
+            time.strptime(time.strftime("%Y-%m-%d", time.localtime()), "%Y-%m-%d")
+        )
+        * 1000
+    )
 
 
 def now() -> int:

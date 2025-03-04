@@ -1,7 +1,7 @@
 """
-    @Author: ImYrS Yang
-    @Date: 2023/5/3
-    @Copyright: @ImYrS
+@Author: ImYrS Yang
+@Date: 2023/5/3
+@Copyright: @ImYrS
 """
 
 import logging
@@ -11,10 +11,10 @@ from configobj import ConfigObj
 
 from modules.database import Rule
 
-config = ConfigObj('./config.ini', encoding='utf-8')
+config = ConfigObj("./config.ini", encoding="utf-8")
 
-interface = config['core']['interface']
-iptables_file = config['core']['iptables_file']
+interface = config["core"]["interface"]
+iptables_file = config["core"]["iptables_file"]
 
 
 def add(rule: Rule) -> bool:
@@ -25,17 +25,17 @@ def add(rule: Rule) -> bool:
     :return:
     """
     shell = (
-        f'iptables -t nat -A PREROUTING -i {interface} '
-        f'-p {rule.protocol} '
-        f'--dport {rule.public_port} -j DNAT '
-        f'--to-destination {rule.vm.ip}:{rule.private_port}'
+        f"iptables -t nat -A PREROUTING -i {interface} "
+        f"-p {rule.protocol} "
+        f"--dport {rule.public_port} -j DNAT "
+        f"--to-destination {rule.vm.ip}:{rule.private_port}"
     )
 
-    logging.info(f'添加规则: {shell}')
+    logging.info(f"添加规则: {shell}")
     os.system(shell)
 
-    with open(iptables_file, 'a', encoding='utf-8') as f:
-        f.write(shell + '\n')
+    with open(iptables_file, "a", encoding="utf-8") as f:
+        f.write(shell + "\n")
 
     return True
 
@@ -48,23 +48,23 @@ def delete(rule: Rule) -> bool:
     :return:
     """
     shell = (
-        f'iptables -t nat -D PREROUTING -i {interface} '
-        f'-p {rule.protocol} '
-        f'--dport {rule.public_port} -j DNAT '
-        f'--to-destination {rule.vm.ip}:{rule.private_port}'
+        f"iptables -t nat -D PREROUTING -i {interface} "
+        f"-p {rule.protocol} "
+        f"--dport {rule.public_port} -j DNAT "
+        f"--to-destination {rule.vm.ip}:{rule.private_port}"
     )
 
     while os.system(shell) == 0:
-        logging.info(f'删除规则: {shell}')
+        logging.info(f"删除规则: {shell}")
 
-    shell = shell.replace('-D', '-A')
+    shell = shell.replace("-D", "-A")
 
-    with open(iptables_file, 'r', encoding='utf-8') as f:
+    with open(iptables_file, "r", encoding="utf-8") as f:
         lines = f.readlines()
 
-    with open(iptables_file, 'w', encoding='utf-8') as f:
+    with open(iptables_file, "w", encoding="utf-8") as f:
         for line in lines:
-            if line != shell + '\n':
+            if line != shell + "\n":
                 f.write(line)
 
     return True
