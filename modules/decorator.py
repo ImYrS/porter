@@ -23,7 +23,7 @@ def auth_required(is_admin: Optional[bool] = False) -> callable:
     def decorated(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            token = request.headers.get("Authorization")
+            token = request.headers.get("Authorization", "").strip("Bearer ")
             if not token:
                 return Error().access_token_invalid()
 

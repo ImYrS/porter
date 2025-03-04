@@ -57,17 +57,7 @@ def login() -> tuple[dict, int]:
 
     return {
         "code": 0,
-        "data": {
-            "user": {
-                "id": user.id,
-                "username": user.username,
-                "is_admin": user.is_admin,
-            },
-            "session": {
-                "access_token": token,
-                "expired_at": expired_at,
-            },
-        },
+        "data": {"access_token": token, "expired_at": expired_at},
     }, 200
 
 
