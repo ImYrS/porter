@@ -81,14 +81,20 @@ def rule_to_dict(rule: Rule) -> dict:
     }
 
 
-def port_is_ok(port: int, protocol: str, is_admin: Optional[bool] = False) -> bool:
+def port_is_ok(port: int, protocol: str, bypass_limit: bool = False) -> bool:
     """检查端口是否合法"""
     try:
-        return (
-            (10000 < port < 65536) if not is_admin else True
-        ) and not Rule.select().where(
-            Rule.public_port == port, Rule.protocol == protocol
-        ).exists()
+        # Check if port is within allowed range (unless bypassing limits)
+        port_in_valid_range = True if bypass_limit else (10000 < port < 65536)
+
+        # Check if port is already in use for the given protocol
+        port_not_in_use = (
+            not Rule.select()
+            .where(Rule.public_port == port, Rule.protocol == protocol)
+            .exists()
+        )
+
+        return port_in_valid_range and port_not_in_use
     except peewee.PeeweeException as e:
         logging.error(f"检查端口是否合法失败: {e}")
         return False
@@ -203,7 +209,9 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
         return Error().parameters_invalid().create()
 
     try:
-        if not port_is_ok(public_port, protocol, is_admin=g.user.is_admin):
+        if not port_is_ok(
+            public_port, protocol, bypass_limit=g.user.role == UserRoles.ADMIN
+        ):
             return Error(
                 code=-1,
                 http_code=409,
@@ -315,7 +323,7 @@ def check_port() -> tuple[dict, int]:
     except (KeyError, TypeError, ValueError, BadRequest):
         return Error().parameters_invalid().create()
 
-    if not port_is_ok(port, protocol, is_admin=g.user.is_admin):
+    if not port_is_ok(port, protocol, bypass_limit=g.user.role == UserRoles.ADMIN):
         return Error(
             code=-1,
             http_code=409,

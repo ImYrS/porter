@@ -11,12 +11,14 @@ from flask import request
 
 from src import session
 from src.errors import Error
+from src.types import UserRoles
 
 
-def auth_required(is_admin: Optional[bool] = False) -> callable:
+def auth_required(role: Optional[UserRoles] = None) -> callable:
     """
     Access Token 校验装饰器
 
+    :param role: 所需角色, 不指定则不校验角色
     :return:
     """
 
@@ -27,7 +29,7 @@ def auth_required(is_admin: Optional[bool] = False) -> callable:
             if not token:
                 return Error().session_invalid().create()
 
-            data = session.verify(token, is_admin)
+            data = session.verify(token, role)
 
             if isinstance(data, Error):
                 return data.create()

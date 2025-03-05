@@ -15,6 +15,7 @@ from src import password, session, utils
 from src.database import User
 from src.decorator import auth_required
 from src.errors import Error
+from src.types import UserRoles
 
 bp = Blueprint("auth", __name__)
 
@@ -90,13 +91,15 @@ def reset_password() -> tuple[dict, int]:
 
 
 @bp.route("/create-user", methods=["POST"])
-@auth_required(is_admin=True)
+@auth_required(UserRoles.ADMIN)
 def create_user() -> tuple[dict, int]:
     """创建用户"""
     try:
         username = request.json["username"].strip()
         pwd = request.json.get("password", None)
-        is_admin = request.json.get("is_admin", False)
+        role = request.json.get("role", "").upper()
+        if role:
+            role = UserRoles[role]
     except (TypeError, KeyError, ValueError, BadRequest):
         return Error().parameters_invalid().create()
 
@@ -117,8 +120,7 @@ def create_user() -> tuple[dict, int]:
         user = User.create(
             username=username,
             password=password.crypt(pwd),
-            is_admin=is_admin,
-            created_at=utils.now(),
+            role=role,
         )
 
     except peewee.PeeweeException as e:

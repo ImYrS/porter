@@ -42,7 +42,6 @@ def create(user: User) -> (Optional[str], int):
             "data": {
                 "id": user.id,
                 "username": user.username,
-                "roles": [UserRoles(user.role).name],
             },
         }
 
@@ -58,12 +57,12 @@ def create(user: User) -> (Optional[str], int):
         return None, 0
 
 
-def verify(token: str, is_admin: Optional[bool] = False) -> dict or Error:
+def verify(token: str, role: Optional[UserRoles] = None) -> dict | Error:
     """
     校验 Access Token
 
     :param token: Access Token
-    :param is_admin: 是否需要管理员权限
+    :param role: 所需角色, 不指定则不校验角色
     :return: 校验结果
     """
     token = str(token or request.headers.get("Authorization"))
@@ -89,16 +88,12 @@ def verify(token: str, is_admin: Optional[bool] = False) -> dict or Error:
         logging.error(f"Access Token 校验失败: {e}")
         return {}
 
-    if is_admin and not data["data"]["is_admin"]:
-        return Error(
-            code=403,
-            http_code=403,
-            message="Permission denied",
-            message_human_readable="权限不足",
-        )
+    g.user = User.get_or_none(User.id == data["data"]["id"])
+    if not g.user:
+        return Error().session_invalid()
 
-    g.user_id = data["data"]["id"]
-    g.is_admin = data["data"]["is_admin"]
-    g.user = User.get(User.id == g.user_id)
+    # 如果指定了所需角色，验证用户角色是否满足要求
+    if role and g.user.role != role:
+        return Error().permission_denied()
 
     return data
