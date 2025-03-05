@@ -49,7 +49,7 @@ def create_admin():
         password=password.crypt(
             utils.hash256(getpass("Setting admin password: ").strip())
         ),
-        role=UserRoles.ADMIN.value,
+        role=UserRoles.ADMIN,
     )
 
 
