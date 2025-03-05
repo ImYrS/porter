@@ -11,6 +11,7 @@ from flask import request, g
 import jwt
 
 from src import utils
+from src.types import UserRoles
 from src.database import User
 from src.errors import Error, ErrorCodes
 
@@ -41,7 +42,7 @@ def create(user: User) -> (Optional[str], int):
             "data": {
                 "id": user.id,
                 "username": user.username,
-                "is_admin": user.is_admin,
+                "roles": [UserRoles(user.role).name],
             },
         }
 
