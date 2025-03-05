@@ -18,7 +18,7 @@ from flask.json.provider import DefaultJSONProvider
 from src import common
 from src.database import db
 from src.formatter import add_camel_case_fields
-from routers.backend_v1 import bp as backend_v1_bp
+from routers.v2 import bp as v2_bp
 
 
 class BetterJSONProvider(DefaultJSONProvider):
@@ -33,7 +33,7 @@ app = Flask(__name__)
 
 app.json = BetterJSONProvider(app)
 
-app.register_blueprint(backend_v1_bp, url_prefix="/v1")
+app.register_blueprint(v2_bp, url_prefix="/v2")
 
 config = ConfigObj("./config.ini", encoding="utf-8")
 debug_mode = config["dev"].as_bool("debug")
