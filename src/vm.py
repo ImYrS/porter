@@ -16,8 +16,32 @@ from src.config import config
 from src.database import VM, Rule, User
 from src.decorator import auth_required
 from src.errors import Error
+from src.types import UserRoles
 
 bp = blueprints.Blueprint("vms", __name__)
+
+
+def get_vm(vm_id: int, user: User = g.user) -> Optional[VM]:
+    """
+    获取 VM 对象
+
+    如果用户角色为管理员，可以获取到不属于自己的 VM 对象
+
+    :param vm_id: VM ID
+    :param user: User 对象，默认为 g.user
+    :return: VM 对象
+    """
+
+    try:
+        return VM.get(
+            VM.id == vm_id,
+            (True if user.role == UserRoles.ADMIN else (VM.user == user)),
+        )
+    except peewee.DoesNotExist:
+        return None
+    except peewee.PeeweeException as e:
+        logging.error(f"获取 VM 失败: {e}")
+        raise e
 
 
 def vm_to_dict(vm: VM, add_rules: Optional[bool] = False) -> dict:
@@ -36,7 +60,7 @@ def vm_to_dict(vm: VM, add_rules: Optional[bool] = False) -> dict:
         "user": {
             "id": vm.user.id,
             "username": vm.user.username,
-            "is_admin": vm.user.is_admin,
+            "roles": [UserRoles(vm.user.role).name],
         },
     }
 
@@ -76,9 +100,7 @@ def get_vms() -> tuple[dict, int]:
     """获取虚拟机列表"""
     try:
         vms = (
-            VM.select().join(User).order_by(VM.created_at.desc())
-            if g.user.is_admin
-            else VM.select()
+            VM.select()
             .where(VM.user == g.user)
             .join(User)
             .order_by(VM.created_at.desc())
@@ -137,14 +159,10 @@ def create_vm() -> tuple[dict, int]:
 def get_vm(vm_id: int) -> tuple[dict, int]:
     """获取虚拟机信息"""
     try:
-        vm = VM.get(
-            VM.id == vm_id, (VM.user == g.user) if not g.user.is_admin else True
-        )
-    except peewee.DoesNotExist:
-        return Error().not_found().create()
-
-    except peewee.PeeweeException as e:
-        logging.error(f"获取 VM 信息失败: {e}")
+        vm = get_vm(vm_id)
+        if not vm:
+            return Error().not_found().create()
+    except peewee.PeeweeException:
         return Error().internal_server_error().create()
 
     return {"code": 0, "data": vm_to_dict(vm, add_rules=True)}, 200
@@ -155,14 +173,10 @@ def get_vm(vm_id: int) -> tuple[dict, int]:
 def delete_vm(vm_id: int) -> tuple[dict, int]:
     """删除虚拟机"""
     try:
-        vm = VM.get(
-            VM.id == vm_id, (VM.user == g.user) if not g.user.is_admin else True
-        )
-    except peewee.DoesNotExist:
-        return Error().not_found().create()
-
-    except peewee.PeeweeException as e:
-        logging.error(f"删除 VM 失败: {e}")
+        vm = get_vm(vm_id)
+        if not vm:
+            return Error().not_found().create()
+    except peewee.PeeweeException:
         return Error().internal_server_error().create()
 
     for rule in vm.rules:
@@ -197,9 +211,9 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
                 message_human_readable="端口为保留端口或已被占用",
             ).create()
 
-        vm = VM.get(
-            VM.id == vm_id, (VM.user == g.user) if not g.user.is_admin else True
-        )
+        vm = get_vm(vm_id)
+        if not vm:
+            return Error().not_found().create()
 
         if vm.rule_count >= vm.rule_limit:
             return Error(
@@ -226,9 +240,6 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
 
         iptables.add(rule)
 
-    except peewee.DoesNotExist:
-        return Error().not_found().create()
-
     except peewee.PeeweeException as e:
         logging.error(f"创建端口转发规则失败: {e}")
         return Error().internal_server_error().create()
@@ -241,10 +252,12 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
 def delete_rule(vm_id: int, rule_id: int) -> tuple[dict, int]:
     """删除端口转发规则"""
     try:
-        vm = VM.get(
-            VM.id == vm_id, (VM.user == g.user) if not g.user.is_admin else True
-        )
+        vm = get_vm(vm_id)
+        if not vm:
+            return Error().not_found().create()
+
         rule = Rule.get(Rule.id == rule_id, Rule.vm == vm)
+
     except peewee.DoesNotExist:
         return Error().not_found().create()
 
