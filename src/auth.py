@@ -11,7 +11,7 @@ import peewee
 from flask import request, Blueprint, g
 from werkzeug.exceptions import BadRequest
 
-from src import common, password, session
+from src import utils, password, session
 from src.database import User
 from src.decorator import auth_required
 from src.errors import Error, ErrorCodes

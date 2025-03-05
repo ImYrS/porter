@@ -10,7 +10,7 @@ import logging
 from flask import request, g
 import jwt
 
-from src import common
+from src import utils
 from src.database import User
 from src.errors import Error, ErrorCodes
 

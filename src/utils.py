@@ -14,8 +14,8 @@ from typing import Optional
 
 
 def formatted_time(
-        time_stamp: Optional[int] = int(time.time()),
-        secure_format: Optional[bool] = False,
+    time_stamp: Optional[int] = int(time.time()),
+    secure_format: Optional[bool] = False,
 ) -> str:
     """
     时间戳转换为格式化时间

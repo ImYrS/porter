@@ -15,7 +15,7 @@ import peewee
 from flask import Flask, g
 from flask.json.provider import DefaultJSONProvider
 
-from src import common
+from src import utils
 from src.database import db
 from src.formatter import add_camel_case_fields
 from routers.v2 import bp as v2_bp

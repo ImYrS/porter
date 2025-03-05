@@ -12,7 +12,7 @@ from flask import g, blueprints, request
 from werkzeug.exceptions import BadRequest
 from configobj import ConfigObj
 
-from src import common, iptables
+from src import utils, iptables
 from src.database import VM, Rule, User
 from src.decorator import auth_required
 from src.errors import Error, ErrorCodes
