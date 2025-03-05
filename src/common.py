@@ -6,12 +6,11 @@
 """
 
 import hashlib
-import os
 import random
 import re
 import string
 import time
-from typing import NoReturn, Optional
+from typing import Optional
 
 
 def formatted_time(
@@ -42,44 +41,7 @@ def timestamp(ms: Optional[bool] = True) -> int:
     return int(time.time()) if not ms else int(time.time() * 1000)
 
 
-def get_today_timestamp() -> int:
-    """
-    获取今天 0 点的时间戳
-
-    :return: 时间戳, 单位毫秒
-    """
-    return int(
-        time.mktime(
-            time.strptime(time.strftime("%Y-%m-%d", time.localtime()), "%Y-%m-%d")
-        )
-        * 1000
-    )
-
-
-def now() -> int:
-    """获取毫秒单位时间戳的别名"""
-    return timestamp()
-
-
-def calc_time(t: int) -> dict:
-    """
-    计算时间长度
-
-    :param t: 时长, 单位秒
-    :return: dict 格式化后的时长
-    """
-    result = {"day": 0, "hour": 0, "minute": 0, "second": 0}
-    if t >= (3600 * 24):
-        result["day"] = t // (3600 * 24)
-        t %= 3600 * 24
-    if t >= 3600:
-        result["hour"] = t // 3600
-        t %= 3600
-    if t >= 60:
-        result["minute"] = t // 60
-        t %= 60
-    result["second"] = t
-    return result
+now = timestamp
 
 
 def rand_char(length=32, upper=False) -> str:
@@ -113,32 +75,6 @@ def rand_char(length=32, upper=False) -> str:
         return result.upper()
     else:
         return result
-
-
-def rand_number(length=6) -> str:
-    """
-    生成随机数字
-
-    :param length: 字符串长度
-    :return:
-    """
-    if length > len(string.digits):
-        result = ""
-        count = length
-        while True:
-            if count == 0:
-                break
-
-            if count > len(string.digits):
-                result += "".join(random.sample(string.digits, len(string.digits)))
-                count -= len(string.digits)
-            else:
-                result += "".join(random.sample(string.digits, count))
-                count -= count
-    else:
-        result = "".join(random.sample(string.digits, length))
-
-    return result
 
 
 def hash256(data) -> str:
@@ -207,38 +143,3 @@ def clean_str(text: str) -> str:
         )
 
     return new_string
-
-
-def size_format(size: int) -> str:
-    """
-    格式化文件大小
-
-    :param size: 文件大小
-    :return: str 格式化后的文件大小
-    """
-    if size < 1024:
-        return str(size) + " B"
-    elif size < 1024 * 1024:
-        return str(round(size / 1024, 2)) + " KB"
-    elif size < 1024 * 1024 * 1024:
-        return str(round(size / 1024 / 1024, 2)) + " MB"
-    elif size < 1024 * 1024 * 1024 * 1024:
-        return str(round(size / 1024 / 1024 / 1024, 2)) + " GB"
-    elif size < 1024 * 1024 * 1024 * 1024 * 1024:
-        return str(round(size / 1024 / 1024 / 1024 / 1024, 2)) + " TB"
-    else:
-        return str(round(size / 1024 / 1024 / 1024 / 1024 / 1024, 2)) + " PB"
-
-
-def get_dir_size(path: str) -> int:
-    """
-    获取文件夹大小
-
-    :param path: 文件夹路径
-    :return: int 文件夹大小
-    """
-    size = 0
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            size += os.path.getsize(os.path.join(root, file))
-    return size
