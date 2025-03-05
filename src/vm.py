@@ -15,7 +15,7 @@ from src.config import config
 from src import utils, iptables
 from src.database import VM, Rule, User
 from src.decorator import auth_required
-from src.errors import Error, ErrorCodes
+from src.errors import Error
 
 bp = blueprints.Blueprint("vms", __name__)
 
@@ -85,7 +85,7 @@ def get_vms() -> tuple[dict, int]:
         )
     except peewee.PeeweeException as e:
         logging.error(f"获取 VM 列表失败: {e}")
-        return Error().db_error()
+        return Error().internal_server_error().create()
 
     return {"code": 0, "data": [vm_to_dict(vm) for vm in vms]}, 200
 
@@ -98,12 +98,12 @@ def create_vm() -> tuple[dict, int]:
         pve_id = int(request.json["pve_id"])
         ip = request.json["ip"]
     except (KeyError, TypeError, ValueError, BadRequest):
-        return Error().parameters_invalid()
+        return Error().parameters_invalid().create()
 
     try:
         if VM.select().where(VM.pve_id == pve_id).exists():
             return Error(
-                code=ErrorCodes.PVEIDExists,
+                code=-1,
                 http_code=409,
                 message="PVE ID exists",
                 message_human_readable="PVE ID 已存在",
@@ -119,7 +119,7 @@ def create_vm() -> tuple[dict, int]:
 
     except peewee.IntegrityError:
         return Error(
-            code=ErrorCodes.IPExists,
+            code=-1,
             http_code=409,
             message="IP exists",
             message_human_readable="IP 已存在",
@@ -127,7 +127,7 @@ def create_vm() -> tuple[dict, int]:
 
     except peewee.PeeweeException as e:
         logging.error(f"创建 VM 失败: {e}")
-        return Error().db_error()
+        return Error().internal_server_error().create()
 
     return {"code": 0, "data": vm_to_dict(vm)}, 200
 
@@ -141,11 +141,11 @@ def get_vm(vm_id: int) -> tuple[dict, int]:
             VM.id == vm_id, (VM.user == g.user) if not g.user.is_admin else True
         )
     except peewee.DoesNotExist:
-        return Error().not_found()
+        return Error().not_found().create()
 
     except peewee.PeeweeException as e:
         logging.error(f"获取 VM 信息失败: {e}")
-        return Error().db_error()
+        return Error().internal_server_error().create()
 
     return {"code": 0, "data": vm_to_dict(vm, add_rules=True)}, 200
 
@@ -159,11 +159,11 @@ def delete_vm(vm_id: int) -> tuple[dict, int]:
             VM.id == vm_id, (VM.user == g.user) if not g.user.is_admin else True
         )
     except peewee.DoesNotExist:
-        return Error().not_found()
+        return Error().not_found().create()
 
     except peewee.PeeweeException as e:
         logging.error(f"删除 VM 失败: {e}")
-        return Error().db_error()
+        return Error().internal_server_error().create()
 
     for rule in vm.rules:
         iptables.delete(rule)
@@ -186,12 +186,12 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
         if protocol not in ("tcp", "udp"):
             raise ValueError
     except (KeyError, TypeError, ValueError, BadRequest):
-        return Error().parameters_invalid()
+        return Error().parameters_invalid().create()
 
     try:
         if not port_is_ok(public_port, protocol, is_admin=g.user.is_admin):
             return Error(
-                code=ErrorCodes.PortInvalid,
+                code=-1,
                 http_code=409,
                 message="Port invalid",
                 message_human_readable="端口为保留端口或已被占用",
@@ -203,7 +203,7 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
 
         if vm.rule_count >= vm.rule_limit:
             return Error(
-                code=ErrorCodes.RuleCountLimit,
+                code=-1,
                 http_code=409,
                 message="Rule count limit",
                 message_human_readable="该虚拟机端口转发规则数量已达上限",
@@ -227,11 +227,11 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
         iptables.add(rule)
 
     except peewee.DoesNotExist:
-        return Error().not_found()
+        return Error().not_found().create()
 
     except peewee.PeeweeException as e:
         logging.error(f"创建端口转发规则失败: {e}")
-        return Error().db_error()
+        return Error().internal_server_error().create()
 
     return {"code": 0, "data": rule_to_dict(rule)}, 200
 
@@ -246,11 +246,11 @@ def delete_rule(vm_id: int, rule_id: int) -> tuple[dict, int]:
         )
         rule = Rule.get(Rule.id == rule_id, Rule.vm == vm)
     except peewee.DoesNotExist:
-        return Error().not_found()
+        return Error().not_found().create()
 
     except peewee.PeeweeException as e:
         logging.error(f"删除端口转发规则失败: {e}")
-        return Error().db_error()
+        return Error().internal_server_error().create()
 
     iptables.delete(rule)
 
@@ -270,12 +270,12 @@ def check_ip() -> tuple[dict, int]:
     try:
         ip = request.json["ip"]
     except (KeyError, TypeError, BadRequest):
-        return Error().parameters_invalid()
+        return Error().parameters_invalid().create()
 
     try:
         if VM.select().where(VM.ip == ip).exists():
             return Error(
-                code=ErrorCodes.IPExists,
+                code=-1,
                 http_code=409,
                 message="IP exists",
                 message_human_readable="IP 已存在",
@@ -283,7 +283,7 @@ def check_ip() -> tuple[dict, int]:
 
     except peewee.PeeweeException as e:
         logging.error(f"检查 IP 是否存在失败: {e}")
-        return Error().db_error()
+        return Error().internal_server_error().create()
 
     return {
         "code": 0,
@@ -300,11 +300,11 @@ def check_port() -> tuple[dict, int]:
         port = int(request.json["port"])
         protocol = request.json["protocol"].lower()
     except (KeyError, TypeError, ValueError, BadRequest):
-        return Error().parameters_invalid()
+        return Error().parameters_invalid().create()
 
     if not port_is_ok(port, protocol, is_admin=g.user.is_admin):
         return Error(
-            code=ErrorCodes.PortInvalid,
+            code=-1,
             http_code=409,
             message="Port invalid",
             message_human_readable="端口为保留端口或已被占用",

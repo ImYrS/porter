@@ -16,7 +16,7 @@ bp = Blueprint("v2", __name__)
 
 @bp.route("/<path:path>", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
 def not_found(path):
-    return Error().not_found()
+    return Error().not_found().create()
 
 
 bp.register_blueprint(auth_bp, url_prefix="/auth")

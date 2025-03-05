@@ -8,6 +8,9 @@
 from typing import Optional
 
 from flask import request
+from werkzeug.exceptions import BadRequest
+
+ParameterError = (TypeError, KeyError, ValueError, AssertionError, BadRequest)
 
 
 class Error:
@@ -36,7 +39,13 @@ class Error:
         self.data = data or {
             "path": request.path,
             "method": request.method,
+            "headers": dict(request.headers),
         }
+
+        try:
+            del self.data["headers"]["Authorization"]
+        except KeyError:
+            pass
 
     def create(self) -> tuple[dict, int]:
         """创建 HTTP 响应数据"""
@@ -47,62 +56,53 @@ class Error:
             "data": self.data,
         }, self.http_code
 
-    def parameters_invalid(self) -> tuple[dict, int]:
+    def parameters_invalid(self, var: Optional[str] = None) -> "Error":
         """请求参数缺失或不可用"""
         self.code = self.http_code = 400
         self.message = "Parameters invalid"
         self.message_human_readable = "请求参数缺失或不可用"
+        if var:
+            self.message += f": {var}"
+            self.message_human_readable += f": {var}"
 
-        return self.create()
+        return self
 
-    def db_error(self) -> tuple[dict, int]:
-        """数据库错误"""
-        self.code = self.http_code = 500
-        self.message = "Database error"
-        self.message_human_readable = "数据库错误"
-
-        return self.create()
-
-    def access_token_invalid(self) -> tuple[dict, int]:
+    def session_invalid(self) -> "Error":
         """会话无效"""
-        self.code = ErrorCodes.AccessTokenInvalid
-        self.http_code = 401
-        self.message = "Access token invalid"
-        self.message_human_readable = "会话无效, 可能已经过期"
+        self.code = self.http_code = 401
+        self.message = "Session invalid"
+        self.message_human_readable = "当前会话无效或已过期"
 
-        return self.create()
+        return self
 
-    def permission_denied(self) -> tuple[dict, int]:
+    def permission_denied(self) -> "Error":
         """权限不足"""
         self.code = self.http_code = 403
         self.message = "Permission denied"
         self.message_human_readable = "权限不足"
 
-        return self.create()
+        return self
 
-    def not_found(self) -> tuple[dict, int]:
-        """资源不存在"""
+    def not_found(self) -> "Error":
+        """未找到"""
         self.code = self.http_code = 404
-        self.message = "Not found"
-        self.message_human_readable = "资源不存在"
+        self.message = "Object or resource not found"
+        self.message_human_readable = "指定的对象或资源不存在"
 
-        return self.create()
+        return self
 
-    def internal_error(self) -> tuple[dict, int]:
-        """内部错误"""
+    def internal_server_error(self) -> "Error":
+        """服务器内部错误"""
         self.code = self.http_code = 500
-        self.message = "Internal error"
-        self.message_human_readable = "内部错误, 请稍后再试"
+        self.message = "Internal server error"
+        self.message_human_readable = "服务器内部错误"
 
-        return self.create()
+        return self
 
+    def deprecated(self) -> "Error":
+        """已弃用"""
+        self.code = self.http_code = 410
+        self.message = "Deprecated API or resource"
+        self.message_human_readable = "此 API 或资源已弃用"
 
-class ErrorCodes:
-    CredentialsInvalid = 1011
-    AccessTokenInvalid = 1012
-    AccessTokenExpired = 1013
-    UserExists = 1014
-    PVEIDExists = 1021
-    IPExists = 1022
-    PortInvalid = 1023
-    RuleCountLimit = 1024
+        return self

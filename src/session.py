@@ -13,7 +13,7 @@ import jwt
 from src import utils
 from src.types import UserRoles
 from src.database import User
-from src.errors import Error, ErrorCodes
+from src.errors import Error
 
 pri_key = open("./keys/jwt.pem", "r").read()
 pub_key = open("./keys/jwt.pub", "r").read()
@@ -78,7 +78,7 @@ def verify(token: str, is_admin: Optional[bool] = False) -> dict or Error:
         )
     except jwt.exceptions.ExpiredSignatureError:
         return Error(
-            code=ErrorCodes.AccessTokenExpired,
+            code=-1,
             http_code=401,
             message="Access token expired",
             message_human_readable="Access Token 已过期",

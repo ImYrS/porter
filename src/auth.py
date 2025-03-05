@@ -14,7 +14,7 @@ from werkzeug.exceptions import BadRequest
 from src import utils, password, session
 from src.database import User
 from src.decorator import auth_required
-from src.errors import Error, ErrorCodes
+from src.errors import Error
 
 bp = Blueprint("auth", __name__)
 
@@ -26,13 +26,13 @@ def login() -> tuple[dict, int]:
         username = request.json["username"].strip()
         pwd = request.json["password"]
     except (TypeError, KeyError, ValueError, BadRequest):
-        return Error().parameters_invalid()
+        return Error().parameters_invalid().create()
 
     try:
         user = User.get(User.username == username)
     except peewee.DoesNotExist:
         return Error(
-            code=ErrorCodes.CredentialsInvalid,
+            code=-1,
             http_code=403,
             message="Credentials invalid",
             message_human_readable="账号不存在或密码错误",
@@ -40,11 +40,11 @@ def login() -> tuple[dict, int]:
 
     except peewee.PeeweeException as e:
         logging.error(f"用户查询失败: {e}")
-        return Error().db_error()
+        return Error().internal_server_error().create()
 
     if not password.verify(pwd, user.password):
         return Error(
-            code=ErrorCodes.CredentialsInvalid,
+            code=-1,
             http_code=403,
             message="Credentials invalid",
             message_human_readable="账号不存在或密码错误",
@@ -53,7 +53,7 @@ def login() -> tuple[dict, int]:
     token, expired_at = session.create(user=user)
 
     if not token or not expired_at:
-        return Error().internal_error()
+        return Error().internal_server_error().create()
 
     return {
         "code": 0,
@@ -69,11 +69,11 @@ def reset_password() -> tuple[dict, int]:
         old_pwd = request.json["old_password"]
         new_pwd = request.json["new_password"]
     except (TypeError, KeyError, ValueError, BadRequest):
-        return Error().parameters_invalid()
+        return Error().parameters_invalid().create()
 
     if not password.verify(old_pwd, g.user.password):
         return Error(
-            code=ErrorCodes.CredentialsInvalid,
+            code=-1,
             http_code=409,
             message="Credentials invalid",
             message_human_readable="旧密码错误",
@@ -84,7 +84,7 @@ def reset_password() -> tuple[dict, int]:
         g.user.save()
     except peewee.PeeweeException as e:
         logging.error(f"重置密码失败: {e}")
-        return Error().db_error()
+        return Error().internal_server_error().create()
 
     return {"code": 0}, 200
 
@@ -98,12 +98,12 @@ def create_user() -> tuple[dict, int]:
         pwd = request.json.get("password", None)
         is_admin = request.json.get("is_admin", False)
     except (TypeError, KeyError, ValueError, BadRequest):
-        return Error().parameters_invalid()
+        return Error().parameters_invalid().create()
 
     try:
         if User.select().where(User.username == username).exists():
             return Error(
-                code=ErrorCodes.UserExists,
+                code=-1,
                 http_code=409,
                 message="Username exists",
                 message_human_readable="用户名已存在",
@@ -123,7 +123,7 @@ def create_user() -> tuple[dict, int]:
 
     except peewee.PeeweeException as e:
         logging.error(f"创建用户失败: {e}")
-        return Error().db_error()
+        return Error().internal_server_error().create()
 
     return {
         "code": 0,
