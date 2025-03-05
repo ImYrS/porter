@@ -8,11 +8,11 @@ import logging
 from typing import Optional
 
 import peewee
-from flask import g, blueprints, request
+from flask import blueprints, g, request
 from werkzeug.exceptions import BadRequest
 
+from src import iptables, utils
 from src.config import config
-from src import utils, iptables
 from src.database import VM, Rule, User
 from src.decorator import auth_required
 from src.errors import Error

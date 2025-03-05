@@ -1,12 +1,12 @@
-from getpass import getpass
 import os
+from getpass import getpass
 
 import pymysql
 from Crypto.PublicKey import RSA
 
+from src import password, utils
 from src.config import config
-from src import utils, password
-from src.database import db, User, VM, Rule
+from src.database import VM, Rule, User, db
 from src.types import UserRoles
 
 
@@ -50,7 +50,6 @@ def create_admin():
             utils.hash256(getpass("Setting admin password: ").strip())
         ),
         role=UserRoles.ADMIN.value,
-        created_at=utils.now(),
     )
 
 

@@ -7,18 +7,18 @@
 
 import logging
 import os
-from typing import Optional
 from json import dumps
+from typing import Optional
 
 import peewee
 from flask import Flask, g
 from flask.json.provider import DefaultJSONProvider
 
-from src.config import config
+from routers.v2 import bp as v2_bp
 from src import utils
+from src.config import config
 from src.database import db
 from src.formatter import add_camel_case_fields
-from routers.v2 import bp as v2_bp
 
 
 class BetterJSONProvider(DefaultJSONProvider):
@@ -86,22 +86,11 @@ def after_request(response):
 
     if response.is_json:
         data = response.json
-        meta = data.get("meta", {})
-
-        try:
-            meta["user"] = {
-                "id": g.user.id,
-                "username": g.user.username,
-                "is_admin": g.user.is_admin,
-            }
-        except AttributeError:
-            pass
 
         # 处理 data 字段中的数据，添加小驼峰命名
         if "data" in data:
             data["data"] = add_camel_case_fields(data["data"])
 
-        data["meta"] = meta
         response.set_data(dumps(data, ensure_ascii=False))
     return response
 

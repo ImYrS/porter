@@ -4,16 +4,16 @@
 @Copyright: @ImYrS
 """
 
-from typing import Optional
 import logging
+from typing import Optional
 
-from flask import request, g
 import jwt
+from flask import g, request
 
 from src import utils
-from src.types import UserRoles
 from src.database import User
 from src.errors import Error
+from src.types import UserRoles
 
 pri_key = open("./keys/jwt.pem", "r").read()
 pub_key = open("./keys/jwt.pub", "r").read()

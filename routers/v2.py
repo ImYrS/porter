@@ -8,8 +8,8 @@
 from flask import Blueprint
 
 from src.auth import bp as auth_bp
-from src.vm import bp as vm_bp
 from src.errors import Error
+from src.vm import bp as vm_bp
 
 bp = Blueprint("v2", __name__)
 

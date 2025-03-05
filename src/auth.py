@@ -8,10 +8,10 @@
 import logging
 
 import peewee
-from flask import request, Blueprint, g
+from flask import Blueprint, g, request
 from werkzeug.exceptions import BadRequest
 
-from src import utils, password, session
+from src import password, session, utils
 from src.database import User
 from src.decorator import auth_required
 from src.errors import Error
