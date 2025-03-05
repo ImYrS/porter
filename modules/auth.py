@@ -33,7 +33,7 @@ def login() -> tuple[dict, int]:
     except peewee.DoesNotExist:
         return Error(
             code=ErrorCodes.CredentialsInvalid,
-            http_code=401,
+            http_code=403,
             message="Credentials invalid",
             message_human_readable="账号不存在或密码错误",
         ).create()
@@ -45,7 +45,7 @@ def login() -> tuple[dict, int]:
     if not password.verify(pwd, user.password):
         return Error(
             code=ErrorCodes.CredentialsInvalid,
-            http_code=401,
+            http_code=403,
             message="Credentials invalid",
             message_human_readable="账号不存在或密码错误",
         ).create()
