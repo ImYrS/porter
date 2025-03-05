@@ -109,16 +109,16 @@ def create_user() -> tuple[dict, int]:
                 message_human_readable="用户名已存在",
             ).create()
 
-        raw_pwd = None if pwd else common.rand_char(16)
+        raw_pwd = None if pwd else utils.rand_char(16)
 
         if raw_pwd:
-            pwd = common.hash256(raw_pwd)
+            pwd = utils.hash256(raw_pwd)
 
         user = User.create(
             username=username,
             password=password.crypt(pwd),
             is_admin=is_admin,
-            created_at=common.now(),
+            created_at=utils.now(),
         )
 
     except peewee.PeeweeException as e:

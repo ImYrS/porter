@@ -55,7 +55,7 @@ def init_logger(debug: Optional[bool] = False):
     if not os.path.exists("./logs/"):
         os.mkdir(os.getcwd() + "/logs/")
 
-    log_name = f"./logs/{common.formatted_time(secure_format=True)}.log"
+    log_name = f"./logs/{utils.formatted_time(secure_format=True)}.log"
     fh = logging.FileHandler(log_name, mode="a", encoding="utf-8")
     fh.setLevel(logging.INFO)
     fh.setFormatter(log_format)

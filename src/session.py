@@ -33,11 +33,11 @@ def create(user: User) -> (Optional[str], int):
             "alg": "RS256",
         }
 
-        expired_at = common.timestamp(ms=False) + expire_time
+        expired_at = utils.timestamp(ms=False) + expire_time
 
         payload = {
             "exp": expired_at,
-            "iat": common.timestamp(ms=False),
+            "iat": utils.timestamp(ms=False),
             "data": {
                 "id": user.id,
                 "username": user.username,

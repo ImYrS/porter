@@ -49,10 +49,10 @@ def create_admin():
     User.create(
         username=input("Setting admin username: ").strip(),
         password=password.crypt(
-            common.hash256(getpass("Setting admin password: ").strip())
+            utils.hash256(getpass("Setting admin password: ").strip())
         ),
         role=UserRoles.ADMIN.value,
-        created_at=common.now(),
+        created_at=utils.now(),
     )
 
 

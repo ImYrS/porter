@@ -116,7 +116,7 @@ def create_vm() -> tuple[dict, int]:
             name=name,
             pve_id=pve_id,
             ip=ip,
-            created_at=common.now(),
+            created_at=utils.now(),
         )
 
     except peewee.IntegrityError:
@@ -217,7 +217,7 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
             public_port=public_port,
             private_port=private_port,
             protocol=protocol,
-            created_at=common.now(),
+            created_at=utils.now(),
         )
 
         if private_port == 22:
