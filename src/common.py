@@ -15,8 +15,8 @@ from typing import NoReturn, Optional
 
 
 def formatted_time(
-    time_stamp: Optional[int] = int(time.time()),
-    secure_format: Optional[bool] = False,
+        time_stamp: Optional[int] = int(time.time()),
+        secure_format: Optional[bool] = False,
 ) -> str:
     """
     时间戳转换为格式化时间
@@ -165,28 +165,6 @@ def hash512(data) -> str:
         return hashlib.sha512(data.encode("utf-8")).hexdigest()
     except AttributeError:
         return hashlib.sha512(data).hexdigest()
-
-
-def mkdir(path) -> NoReturn:
-    """
-    创建文件夹, 支持多级
-
-    :param path: 文件夹路径
-    :return:
-    """
-    try:
-        os.mkdir(path)
-    except FileNotFoundError:
-        split = path.split("/")
-        for i in range(len(split)):
-            if split[i] == ".":
-                continue
-            try:
-                os.mkdir(path.rsplit("/", len(split) - (i + 1))[0])
-            except FileExistsError:
-                pass
-    except FileExistsError:
-        pass
 
 
 def str_process(var):

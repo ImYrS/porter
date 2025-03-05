@@ -1,4 +1,5 @@
 from getpass import getpass
+import os
 
 import pymysql
 from configobj import ConfigObj
@@ -58,7 +59,7 @@ def create_jwt_key():
     """创建 JWT 密钥"""
     key = RSA.generate(2048)
 
-    common.mkdir("./keys")
+    os.makedirs("./keys", exist_ok=True)
 
     with open("./keys/jwt.pem", "wb") as f:
         f.write(key.export_key("PEM"))
