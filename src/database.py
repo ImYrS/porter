@@ -1,9 +1,7 @@
-from configobj import ConfigObj
 from peewee import *
 
+from src.config import config
 from src.types import UserRoles
-
-config = ConfigObj("config.ini", encoding="utf-8")
 
 db = (
     MySQLDatabase(

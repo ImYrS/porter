@@ -2,9 +2,9 @@ from getpass import getpass
 import os
 
 import pymysql
-from configobj import ConfigObj
 from Crypto.PublicKey import RSA
 
+from src.config import config
 from src import utils, password
 from src.database import db, User, VM, Rule
 from src.types import UserRoles
@@ -12,8 +12,6 @@ from src.types import UserRoles
 
 def create_db():
     """创建数据库"""
-    config = ConfigObj("config.ini", encoding="utf-8")
-
     if config["db"]["type"] == "mysql":
 
         pydb = pymysql.connect(

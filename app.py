@@ -10,11 +10,11 @@ import os
 from typing import Optional
 from json import dumps
 
-from configobj import ConfigObj
 import peewee
 from flask import Flask, g
 from flask.json.provider import DefaultJSONProvider
 
+from src.config import config
 from src import utils
 from src.database import db
 from src.formatter import add_camel_case_fields
@@ -35,7 +35,6 @@ app.json = BetterJSONProvider(app)
 
 app.register_blueprint(v2_bp, url_prefix="/v2")
 
-config = ConfigObj("./config.ini", encoding="utf-8")
 debug_mode = config["dev"].as_bool("debug")
 
 

@@ -7,11 +7,8 @@
 import logging
 import os
 
-from configobj import ConfigObj
-
+from src.config import config
 from src.database import Rule
-
-config = ConfigObj("./config.ini", encoding="utf-8")
 
 interface = config["core"]["interface"]
 iptables_file = config["core"]["iptables_file"]

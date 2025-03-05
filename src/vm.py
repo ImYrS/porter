@@ -10,16 +10,14 @@ from typing import Optional
 import peewee
 from flask import g, blueprints, request
 from werkzeug.exceptions import BadRequest
-from configobj import ConfigObj
 
+from src.config import config
 from src import utils, iptables
 from src.database import VM, Rule, User
 from src.decorator import auth_required
 from src.errors import Error, ErrorCodes
 
 bp = blueprints.Blueprint("vms", __name__)
-
-config = ConfigObj("./config.ini", encoding="utf-8")
 
 
 def vm_to_dict(vm: VM, add_rules: Optional[bool] = False) -> dict:
