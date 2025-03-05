@@ -10,9 +10,9 @@ import logging
 from flask import request, g
 import jwt
 
-from modules import common
-from modules.database import User
-from modules.errors import Error, ErrorCodes
+from src import common
+from src.database import User
+from src.errors import Error, ErrorCodes
 
 pri_key = open("./keys/jwt.pem", "r").read()
 pub_key = open("./keys/jwt.pub", "r").read()

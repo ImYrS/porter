@@ -12,10 +12,10 @@ from flask import g, blueprints, request
 from werkzeug.exceptions import BadRequest
 from configobj import ConfigObj
 
-from modules import common, iptables
-from modules.database import VM, Rule, User
-from modules.decorator import auth_required
-from modules.errors import Error, ErrorCodes
+from src import common, iptables
+from src.database import VM, Rule, User
+from src.decorator import auth_required
+from src.errors import Error, ErrorCodes
 
 bp = blueprints.Blueprint("vms", __name__)
 

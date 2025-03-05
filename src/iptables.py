@@ -9,7 +9,7 @@ import os
 
 from configobj import ConfigObj
 
-from modules.database import Rule
+from src.database import Rule
 
 config = ConfigObj("./config.ini", encoding="utf-8")
 

@@ -7,9 +7,9 @@
 
 from flask import Blueprint
 
-from modules.auth import bp as auth_bp
-from modules.vm import bp as vm_bp
-from modules.errors import Error
+from src.auth import bp as auth_bp
+from src.vm import bp as vm_bp
+from src.errors import Error
 
 bp = Blueprint("backend_v1", __name__)
 

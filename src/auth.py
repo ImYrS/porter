@@ -11,10 +11,10 @@ import peewee
 from flask import request, Blueprint, g
 from werkzeug.exceptions import BadRequest
 
-from modules import common, password, session
-from modules.database import User
-from modules.decorator import auth_required
-from modules.errors import Error, ErrorCodes
+from src import common, password, session
+from src.database import User
+from src.decorator import auth_required
+from src.errors import Error, ErrorCodes
 
 bp = Blueprint("auth", __name__)
 

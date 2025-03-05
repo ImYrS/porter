@@ -9,8 +9,8 @@ from typing import Optional
 
 from flask import request
 
-from modules import session
-from modules.errors import Error
+from src import session
+from src.errors import Error
 
 
 def auth_required(is_admin: Optional[bool] = False) -> callable:

@@ -4,8 +4,8 @@ import pymysql
 from configobj import ConfigObj
 from Crypto.PublicKey import RSA
 
-from modules import common, password
-from modules.database import db, User, VM, Rule
+from src import common, password
+from src.database import db, User, VM, Rule
 
 
 def create_db():
