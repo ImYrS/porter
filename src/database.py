@@ -1,5 +1,7 @@
-from peewee import *
 from configobj import ConfigObj
+from peewee import *
+
+from src.types import UserRoles
 
 config = ConfigObj("config.ini", encoding="utf-8")
 
@@ -27,7 +29,7 @@ class User(BaseModel):
     id = PrimaryKeyField()
     username = CharField(32, unique=True)
     password = CharField(97)
-    is_admin = BooleanField(default=False)
+    role = IntegerField(default=UserRoles.USER.value)
     created_at = BigIntegerField(default=0)
 
     class Meta:

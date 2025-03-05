@@ -7,6 +7,7 @@ from Crypto.PublicKey import RSA
 
 from src import common, password
 from src.database import db, User, VM, Rule
+from src.types import UserRoles
 
 
 def create_db():
@@ -50,7 +51,7 @@ def create_admin():
         password=password.crypt(
             common.hash256(getpass("Setting admin password: ").strip())
         ),
-        is_admin=True,
+        role=UserRoles.ADMIN.value,
         created_at=common.now(),
     )
 

@@ -11,7 +11,7 @@ from src.auth import bp as auth_bp
 from src.vm import bp as vm_bp
 from src.errors import Error
 
-bp = Blueprint("backend_v1", __name__)
+bp = Blueprint("v2", __name__)
 
 
 @bp.route("/<path:path>", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
