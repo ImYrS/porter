@@ -5,9 +5,9 @@
 @Description:
 """
 
+import json
 import logging
 import os
-from json import dumps
 from typing import Optional
 
 import peewee
@@ -91,7 +91,7 @@ def after_request(response):
         if "data" in data:
             data["data"] = add_camel_case_fields(data["data"])
 
-        response.set_data(dumps(data, ensure_ascii=False))
+        response.set_data(json.dumps(data, ensure_ascii=False, separators=(",", ":")))
     return response
 
 
