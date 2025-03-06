@@ -25,7 +25,7 @@ def auth_required(role: Optional[UserRoles] = None) -> callable:
     def decorated(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            token = request.headers.get("Authorization", "").strip("Bearer ")
+            token = request.headers.get("Authorization")
             if not token:
                 return Error().session_invalid().create()
 

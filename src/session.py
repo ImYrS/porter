@@ -57,7 +57,9 @@ def create(user: User) -> (Optional[str], int):
         return None, 0
 
 
-def verify(token: str, role: Optional[UserRoles] = None) -> dict | Error:
+def verify(
+    token: Optional[str] = None, role: Optional[UserRoles] = None
+) -> dict | Error:
     """
     校验 Access Token
 
@@ -65,9 +67,11 @@ def verify(token: str, role: Optional[UserRoles] = None) -> dict | Error:
     :param role: 所需角色, 不指定则不校验角色
     :return: 校验结果
     """
-    token = str(token or request.headers.get("Authorization"))
+    token = str(token or request.headers.get("authorization"))
 
-    token = token.replace("Bearer ", "")
+    # 移除 Bearer
+    if token.startswith("Bearer "):
+        token = token[7:]
 
     try:
         data = jwt.decode(
