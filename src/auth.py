@@ -62,6 +62,13 @@ def login() -> tuple[dict, int]:
     }, 200
 
 
+@bp.route("/codes", methods=["GET"])
+@auth_required()
+def get_access_codes() -> tuple[dict, int]:
+    """获取用户的访问码"""
+    return {"code": 0, "data": []}, 200
+
+
 @bp.route("/reset-password", methods=["POST"])
 @auth_required()
 def reset_password() -> tuple[dict, int]:

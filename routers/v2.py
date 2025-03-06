@@ -7,9 +7,8 @@
 
 from flask import Blueprint
 
-from src.auth import bp as auth_bp
+from src import auth, user, vm
 from src.errors import Error
-from src.vm import bp as vm_bp
 
 bp = Blueprint("v2", __name__)
 
@@ -19,5 +18,6 @@ def not_found(path):
     return Error().not_found().create()
 
 
-bp.register_blueprint(auth_bp, url_prefix="/auth")
-bp.register_blueprint(vm_bp, url_prefix="/vms")
+bp.register_blueprint(auth.bp, url_prefix="/auth")
+bp.register_blueprint(user.bp, url_prefix="/user")
+bp.register_blueprint(vm.bp, url_prefix="/vms")
