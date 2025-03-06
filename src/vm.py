@@ -21,7 +21,7 @@ from src.types import UserRoles
 bp = blueprints.Blueprint("vms", __name__)
 
 
-def get_vm(vm_id: int, user: User = g.user) -> Optional[VM]:
+def get_vm(vm_id: int, user: Optional[User] = None) -> Optional[VM]:
     """
     获取 VM 对象
 
@@ -31,6 +31,7 @@ def get_vm(vm_id: int, user: User = g.user) -> Optional[VM]:
     :param user: User 对象，默认为 g.user
     :return: VM 对象
     """
+    user = user or g.user
 
     try:
         return VM.get(
