@@ -4,11 +4,9 @@
 @Copyright: @ImYrS
 """
 
-from flask import blueprints, g, request
+from flask import blueprints, g
 
-from src.database import User
 from src.decorator import auth_required
-from src.errors import Error
 
 bp = blueprints.Blueprint("user", __name__)
 
