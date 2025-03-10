@@ -21,7 +21,7 @@ from src.types import UserRoles
 bp = blueprints.Blueprint("vms", __name__)
 
 
-def get_vm(vm_id: int, user: Optional[User] = None) -> Optional[VM]:
+def get_vm_obj(vm_id: int, user: Optional[User] = None) -> Optional[VM]:
     """
     获取 VM 对象
 
@@ -45,7 +45,7 @@ def get_vm(vm_id: int, user: Optional[User] = None) -> Optional[VM]:
         raise e
 
 
-def vm_to_dict(vm: VM, add_rules: Optional[bool] = False) -> dict:
+def vm_to_dict(vm: VM) -> dict:
     """将 VM 对象转换为 dict"""
     data = {
         "id": vm.id,
@@ -61,12 +61,9 @@ def vm_to_dict(vm: VM, add_rules: Optional[bool] = False) -> dict:
         "user": {
             "id": vm.user.id,
             "username": vm.user.username,
-            "roles": [UserRoles(vm.user.role).name],
+            "roles": [vm.user.role.name],
         },
     }
-
-    if add_rules:
-        data["rules"] = [rule_to_dict(rule) for rule in vm.rules]
 
     return data
 
@@ -77,7 +74,7 @@ def rule_to_dict(rule: Rule) -> dict:
         "id": rule.id,
         "public_port": rule.public_port,
         "private_port": rule.private_port,
-        "protocol": rule.protocol,
+        "protocol": rule.protocol.value,
         "created_at": rule.created_at,
     }
 
@@ -166,13 +163,13 @@ def create_vm() -> tuple[dict, int]:
 def get_vm(vm_id: int) -> tuple[dict, int]:
     """获取虚拟机信息"""
     try:
-        vm = get_vm(vm_id)
+        vm = get_vm_obj(vm_id)
         if not vm:
             return Error().not_found().create()
     except peewee.PeeweeException:
         return Error().internal_server_error().create()
 
-    return {"code": 0, "data": vm_to_dict(vm, add_rules=True)}, 200
+    return {"code": 0, "data": vm_to_dict(vm)}, 200
 
 
 @bp.route("/<int:vm_id>", methods=["DELETE"])
@@ -180,7 +177,7 @@ def get_vm(vm_id: int) -> tuple[dict, int]:
 def delete_vm(vm_id: int) -> tuple[dict, int]:
     """删除虚拟机"""
     try:
-        vm = get_vm(vm_id)
+        vm = get_vm_obj(vm_id)
         if not vm:
             return Error().not_found().create()
     except peewee.PeeweeException:
@@ -220,7 +217,7 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
                 message_human_readable="端口为保留端口或已被占用",
             ).create()
 
-        vm = get_vm(vm_id)
+        vm = get_vm_obj(vm_id)
         if not vm:
             return Error().not_found().create()
 
@@ -261,7 +258,7 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
 def delete_rule(vm_id: int, rule_id: int) -> tuple[dict, int]:
     """删除端口转发规则"""
     try:
-        vm = get_vm(vm_id)
+        vm = get_vm_obj(vm_id)
         if not vm:
             return Error().not_found().create()
 
