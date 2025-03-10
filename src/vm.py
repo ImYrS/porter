@@ -192,6 +192,20 @@ def delete_vm(vm_id: int) -> tuple[dict, int]:
     return {"code": 0}, 210
 
 
+@bp.route("/<int:vm_id>/rules", methods=["GET"])
+@auth_required()
+def get_rules(vm_id: int) -> tuple[dict, int]:
+    """获取端口转发规则列表"""
+    try:
+        vm = get_vm_obj(vm_id)
+        if not vm:
+            return Error().not_found().create()
+    except peewee.PeeweeException:
+        return Error().internal_server_error().create()
+
+    return {"code": 0, "data": [rule_to_dict(rule) for rule in vm.rules]}, 200
+
+
 @bp.route("/<int:vm_id>/rules", methods=["POST"])
 @auth_required()
 def create_rule(vm_id: int) -> tuple[dict, int]:
