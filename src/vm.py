@@ -291,7 +291,7 @@ def delete_rule(vm_id: int, rule_id: int) -> tuple[dict, int]:
         vm.ssh_port = None
 
     rule.delete_instance()
-    vm.rule_count -= 1
+    vm.rule_count = max(0, vm.rule_count - 1)
     vm.save()
 
     return {"code": 0}, 210
