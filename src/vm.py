@@ -16,7 +16,7 @@ from src.config import config
 from src.database import VM, Rule, User
 from src.decorator import auth_required
 from src.errors import Error
-from src.types import UserRoles
+from src.types import RuleProtocols, UserRoles
 
 bp = blueprints.Blueprint("vms", __name__)
 
@@ -214,15 +214,16 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
         public_port = int(request.json["public_port"])
         private_port = int(request.json["private_port"])
         protocol = request.json["protocol"].lower()
-
-        if protocol not in ("tcp", "udp"):
-            raise ValueError
+        protocol = RuleProtocols(protocol)
     except (KeyError, TypeError, ValueError, BadRequest):
         return Error().parameters_invalid().create()
 
+    print(g.user.role, UserRoles.ADMIN)
+    print(g.user.role == UserRoles.ADMIN)
+
     try:
         if not port_is_ok(
-            public_port, protocol, bypass_limit=g.user.role == UserRoles.ADMIN
+            public_port, protocol.value, bypass_limit=g.user.role == UserRoles.ADMIN
         ):
             return Error(
                 code=-1,
