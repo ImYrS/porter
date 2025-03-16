@@ -1,32 +1,11 @@
 import os
 from getpass import getpass
 
-import pymysql
 from Crypto.PublicKey import RSA
 
 from src import password, utils
-from src.config import config
 from src.database import VM, Rule, User, db
 from src.types import UserRoles
-
-
-def create_db():
-    """创建数据库"""
-    if config["db"]["type"] == "mysql":
-
-        pydb = pymysql.connect(
-            host=config["db"]["host"],
-            port=config["db"].as_int("port"),
-            user=config["db"]["user"],
-            password=config["db"]["password"],
-        )
-        cursor = pydb.cursor()
-        cursor.execute(
-            f"CREATE DATABASE IF NOT EXISTS "
-            f'{config["db"]["database"]} '
-            f"DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_general_ci;"
-        )
-        pydb.close()
 
 
 def create_tables():
@@ -65,10 +44,10 @@ def create_jwt_key():
         f.write(key.publickey().export_key("PEM"))
 
 
-def main():
-    create_db()
+def main(setup_admin: bool = True):
     create_tables()
-    create_admin()
+    if setup_admin:
+        create_admin()
     create_jwt_key()
 
 
