@@ -105,7 +105,7 @@ def get_vms() -> tuple[dict, int]:
     try:
         vms = (
             VM.select()
-            .where(VM.user == g.user)
+            .where((VM.user == g.user) if g.user.role != UserRoles.ADMIN else True)
             .join(User)
             .order_by(VM.created_at.desc())
         )
@@ -217,9 +217,6 @@ def create_rule(vm_id: int) -> tuple[dict, int]:
         protocol = RuleProtocols(protocol)
     except (KeyError, TypeError, ValueError, BadRequest):
         return Error().parameters_invalid().create()
-
-    print(g.user.role, UserRoles.ADMIN)
-    print(g.user.role == UserRoles.ADMIN)
 
     try:
         if not port_is_ok(
