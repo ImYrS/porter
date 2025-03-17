@@ -23,7 +23,7 @@ def add(rule: Rule) -> bool:
     """
     shell = (
         f"iptables -t nat -A PREROUTING -i {interface} "
-        f"-p {rule.protocol} "
+        f"-p {rule.protocol.value} "
         f"--dport {rule.public_port} -j DNAT "
         f"--to-destination {rule.vm.ip}:{rule.private_port}"
     )
@@ -46,7 +46,7 @@ def delete(rule: Rule) -> bool:
     """
     shell = (
         f"iptables -t nat -D PREROUTING -i {interface} "
-        f"-p {rule.protocol} "
+        f"-p {rule.protocol.value} "
         f"--dport {rule.public_port} -j DNAT "
         f"--to-destination {rule.vm.ip}:{rule.private_port}"
     )
