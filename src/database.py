@@ -5,6 +5,7 @@ from peewee import (
     ForeignKeyField,
     IntegerField,
     Model,
+    MySQLDatabase,
     PrimaryKeyField,
     SqliteDatabase,
 )
@@ -13,7 +14,19 @@ from src import utils
 from src.config import config
 from src.types import RuleProtocols, UserRoles
 
-db = SqliteDatabase(f"{config['db']['database']}.db")
+db = (
+    MySQLDatabase(
+        config["db"]["database"],
+        host=config["db"]["host"],
+        user=config["db"]["user"],
+        passwd=config["db"]["password"],
+        port=config["db"].as_int("port"),
+        autorollback=True,
+        charset="utf8mb4",
+    )
+    if config["db"]["type"] == "mysql"
+    else SqliteDatabase(f"{config['db']['database']}.db")
+)
 
 
 class EnumField(Field):
